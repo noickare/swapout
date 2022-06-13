@@ -1,15 +1,32 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useState } from 'react'
-import { Button, DatePicker, Form, Input, Modal, Select, Typography, Upload, Spin } from 'antd';
+import { Button, DatePicker, Form, Input, Modal, Select, Typography, Upload, Spin, message, AutoComplete } from 'antd';
+import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete'
 import { RcFile, UploadFile, UploadProps } from 'antd/lib/upload/interface';
 import { PlusOutlined } from '@ant-design/icons';
 import { useAuth } from '../context/authContext';
 import { useRouter } from 'next/router';
+import { geohashForLocation } from 'geofire-common';
+import { v4 as uuidv4 } from 'uuid';
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { firebaseStorage } from '../services/init_firebase';
+import { IItem } from '../models/item';
+import { createItem } from '../services/firestore/item';
+import { serverTimestamp } from 'firebase/firestore';
+import { openNotificationWithIcon } from '../components/notification/Notification';
+
 
 const { Title } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
 const { YearPicker } = DatePicker;
+
+
+const categories = [
+    { value: 'Phones' },
+    { value: 'Electronics' },
+    { value: 'Cars' },
+];
 
 export default function CreateSwap() {
     const [form] = Form.useForm();
@@ -19,6 +36,9 @@ export default function CreateSwap() {
     const { authUser, authLoading } = useAuth();
     const router = useRouter();
     const [pageLoading, setPageLoading] = useState(true);
+    const [address, setAddress] = useState<{ address: string | undefined, lat: number | undefined, lng: number | undefined }>();
+    const [imageUrls, setImageUrls] = useState<string[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
 
 
@@ -39,13 +59,69 @@ export default function CreateSwap() {
         setPreviewImageVisible(true);
     };
 
-    const handleImageChange: UploadProps['onChange'] = ({ fileList: newFileList }) =>
+    const beforeUpload = (file: RcFile, fileList: RcFile[]) => {
+        if (!["image/jpeg", "image/png"].includes(file.type)) {
+            const updatedList = fileList.filter((fl) => fl.uid !== file.uid);
+            setImageList(updatedList);
+            message.error(`${file.name} is not a valid image type`, 2);
+            return null;
+        }
+        return false;
+    };
+
+
+    const handleImageChange: UploadProps['onChange'] = async ({ fileList: newFileList }) => {
+        const newFileArray = newFileList.filter(x => !imageList.includes(x));
+        const newFile = newFileArray[0];
+        const fileName = `items/images/${Date.now()}-${newFile.name}`;
+        const fileRef = ref(firebaseStorage, fileName);
+        try {
+            if (newFile.originFileObj) {
+                const designFile = await uploadBytes(fileRef, newFile.originFileObj);
+                const downloadUrl = await getDownloadURL(designFile.ref)
+                setImageUrls([...imageUrls, downloadUrl]);
+            }
+        } catch (e) {
+            console.log(e);
+            message.error('Error uploading file! Please try again')
+        }
         setImageList(newFileList);
+    }
 
 
-    const onFinish = (values: any) => {
-        console.log(form.getFieldValue('name'))
-        console.log(values);
+    const onFinish = async (values: any) => {
+        if (!authUser) {
+            router.push('/login')
+        } else {
+            setIsSubmitting(true);
+            try {
+                const toSaveItem: IItem = {
+                    uid: uuidv4(),
+                    name: values.name,
+                    location: {
+                        lat: address?.lat as number,
+                        lng: address?.lng as number,
+                        address: address?.address as string,
+                    },
+                    description: values.description,
+                    condition: values.condition,
+                    yearManufactured: values.yearManufactured.format('YYYY'),
+                    yearBought: values.yearBought.format('YYYY'),
+                    itemToExchangeWith: values.itemTOExchange,
+                    images: imageUrls,
+                    ownerId: authUser.uid,
+                    createdAt: serverTimestamp(),
+                    category: values.category
+                }
+                const createdItem = await createItem(toSaveItem);
+                setIsSubmitting(false);
+                router.push(`/item/${createdItem.uid}`)
+            } catch (error) {
+                console.log(error);
+                setIsSubmitting(false);
+                openNotificationWithIcon('error', 'Creation Failed', 'An Error ocurred during submission please try again!')
+            }
+        }
     };
 
     const uploadButton = (
@@ -85,6 +161,54 @@ export default function CreateSwap() {
                 <Form.Item name="name" label="Name" rules={[{ required: true }]}>
                     <Input />
                 </Form.Item>
+                <Form.Item name="location" label="Location" rules={[{ required: true }]}>
+                    <PlacesAutocomplete
+                        value={address?.address}
+                        onChange={(add) => {
+                            setAddress({ address: add, lat: undefined, lng: undefined });
+                        }
+                        }
+                        onSelect={(addSelected) => {
+                            form.setFieldsValue({ location: addSelected })
+                            geocodeByAddress(addSelected)
+                                .then((results) => getLatLng(results[0]))
+                                .then(({ lat, lng }) => {
+                                    setAddress({ address: addSelected, lat: lat, lng: lng });
+                                })
+                        }}
+                    >
+                        {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
+                            <div>
+                                <Input
+                                    {...getInputProps({
+                                        placeholder: 'Search Location ...',
+                                    })}
+                                />
+                                <div className="autocomplete-dropdown-container">
+                                    {loading && <div>Loading...</div>}
+                                    {suggestions.map((suggestion) => {
+                                        const className = suggestion.active ? 'suggestion-item--active' : 'suggestion-item'
+                                        // inline style for demonstration purpose
+                                        const style = suggestion.active
+                                            ? { backgroundColor: '#fafafa', cursor: 'pointer' }
+                                            : { backgroundColor: '#ffffff', cursor: 'pointer' }
+                                        return (
+                                            // eslint-disable-next-line react/jsx-key
+                                            <div
+                                                {...getSuggestionItemProps(suggestion, {
+                                                    className,
+                                                    style,
+                                                })}
+                                            >
+                                                <span>{suggestion.description}</span>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                    </PlacesAutocomplete>
+                </Form.Item>
                 <Form.Item name="description" label="Description" rules={[{ required: true }]}>
                     <TextArea rows={4} />
                 </Form.Item>
@@ -93,10 +217,19 @@ export default function CreateSwap() {
                         placeholder="Select Item Condition"
                         allowClear
                     >
-                        <Option value="used">Used</Option>
-                        <Option value="new">New</Option>
-                        <Option value="refurbished">Refurbished</Option>
+                        <Option value="Used">Used</Option>
+                        <Option value="New">New</Option>
+                        <Option value="Refurbished">Refurbished</Option>
                     </Select>
+                </Form.Item>
+                <Form.Item name="category" label="Category" rules={[{ required: false }]}>
+                    <AutoComplete
+                        options={categories}
+                        placeholder="Category"
+                        filterOption={(inputValue, option) =>
+                            option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                        }
+                    />
                 </Form.Item>
                 <Form.Item name="yearManufactured" label="Year Manufactured" rules={[{ required: true }]}>
                     <YearPicker />
@@ -111,6 +244,9 @@ export default function CreateSwap() {
                         fileList={imageList}
                         onPreview={handleImagePreview}
                         onChange={handleImageChange}
+                        //  @ts-ignore
+                        beforeUpload={(file: RcFile, FileList: RcFile[]) => beforeUpload(file, FileList)}
+                        accept="image/*"
                     >
                         {imageList.length >= 15 ? null : uploadButton}
                     </Upload>
@@ -122,7 +258,7 @@ export default function CreateSwap() {
                     <Input />
                 </Form.Item>
                 <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                    <Button type="primary" htmlType="submit" size="large">
+                    <Button loading={isSubmitting} disabled={isSubmitting} type="primary" htmlType="submit" size="large">
                         Create
                     </Button>
                 </Form.Item>

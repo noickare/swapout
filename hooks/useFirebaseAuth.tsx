@@ -22,6 +22,7 @@ export default function useFirebaseAuth() {
                 await signOut(firebaseAuth);
                 router.push('/login');
             } else {
+                console.log(error);
                 openNotificationWithIcon('error', 'Internal server error', 'Something went wrong, please try again!');
             }
         }

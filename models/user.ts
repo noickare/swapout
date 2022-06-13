@@ -1,3 +1,5 @@
+import { ILocation } from "./location";
+
 export interface IUser {
     uid: string;
     email: string;
@@ -8,4 +10,5 @@ export interface IUser {
     createdAt: string;
     lastLoginTime: string;
     isEmailVerified: boolean;
+    location?: ILocation;
 }

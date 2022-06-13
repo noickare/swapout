@@ -1,19 +1,23 @@
 import React, { useState } from 'react'
-import { Form, Input, Button, Checkbox, Card, Typography } from 'antd';
+import { Form, Input, Button, Checkbox, Card, Typography, Spin } from 'antd';
 import { LockOutlined, GoogleOutlined, MailOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { firebaseAuth, googleAuthProvider } from '../services/init_firebase';
 import { useRouter } from 'next/router';
 import { openNotificationWithIcon } from '../components/notification/Notification';
+import { useAuth } from '../context/authContext';
 
 const { Title } = Typography;
+
 
 
 export default function Login() {
 
   const [isSigningIn, setIsSigningIn] = useState(false);
   const router = useRouter();
+  const { authUser, authLoading } = useAuth();
+  const [pageLoading, setPageLoading] = useState(true);
 
   const onFinish = async (values: any) => {
     setIsSigningIn(true);
@@ -38,11 +42,28 @@ export default function Login() {
       setIsSigningIn(false);
       router.push('/');
     } catch (error) {
+      console.log(error);
       // TODO: Log error!
       openNotificationWithIcon('error', 'Sign in sailed', 'An Error ocurred during sign in please try again!')
       setIsSigningIn(false);
     }
   }
+
+  React.useEffect(() => {
+    if (authUser && !authLoading) {
+      setPageLoading(false);
+      router.push('/');
+    } else {
+      setPageLoading(false);
+      router.push('/login');
+    }
+  }, []);
+  
+    if (pageLoading) return (
+        <>
+            <Spin size="large" />
+        </>
+    )
 
   return (
     <div className="flex flex-col content-center justify-center h-full mt-12 w-full">

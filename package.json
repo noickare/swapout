@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed:auth": "tsc seed/auth.ts && node seed/auth.js"
   },
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
@@ -15,6 +16,7 @@
     "antd-password-input-strength": "^2.0.1",
     "autoprefixer": "^10.4.7",
     "firebase": "^9.8.2",
+    "geofire-common": "^5.2.0",
     "next": "12.1.6",
     "next-plugin-antd-less": "^1.8.0",
     "nextjs-progressbar": "^0.0.14",
@@ -22,14 +24,20 @@
     "postcss-cli": "^9.1.0",
     "react": "18.1.0",
     "react-dom": "18.1.0",
+    "react-multi-carousel": "^2.8.0",
+    "react-places-autocomplete": "^7.3.0",
     "react-responsive": "^9.0.0-beta.10",
-    "tailwindcss": "^3.0.24"
+    "tailwindcss": "^3.0.24",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@faker-js/faker": "^7.2.0",
     "@tailwindcss/forms": "^0.5.2",
     "@types/node": "17.0.41",
     "@types/react": "18.0.12",
     "@types/react-dom": "18.0.5",
+    "@types/react-places-autocomplete": "^7.2.9",
+    "@types/uuid": "^8.3.4",
     "babel-plugin-import": "^1.13.5",
     "eslint": "8.17.0",
     "eslint-config-next": "12.1.6",

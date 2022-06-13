@@ -1,14 +1,13 @@
 import React, { useState } from 'react'
-import { Form, Input, Button, Card, Typography } from 'antd';
+import { Form, Input, Button, Card, Typography, Spin } from 'antd';
 import { MailOutlined, LockOutlined, GoogleOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { createUserWithEmailAndPassword, getAdditionalUserInfo, signInWithPopup, } from "firebase/auth";
 import { PasswordInput } from 'antd-password-input-strength';
 import { firebaseAuth, googleAuthProvider } from '../services/init_firebase';
-import { IUser } from '../models/user';
-import { createUser } from '../services/firestore/users';
 import { useRouter } from 'next/router';
 import { openNotificationWithIcon } from '../components/notification/Notification';
+import { useAuth } from '../context/authContext';
 
 const { Title } = Typography;
 
@@ -16,6 +15,8 @@ export default function Register() {
   const [level, setLevel] = useState(0)
   const [isRegistering, setIsRegistering] = useState(false);
   const router = useRouter();
+  const { authUser, authLoading } = useAuth();
+  const [pageLoading, setPageLoading] = useState(true);
 
 
   const minLevel = 1;
@@ -30,8 +31,8 @@ export default function Register() {
     } catch (error: any) {
       setIsRegistering(false);
       console.log(error.message);
-      if(error.message.includes('email-already-in-use')) {
-      openNotificationWithIcon('error', 'Email already in Use', 'Email already in use, please use a different email address or sign in!')
+      if (error.message.includes('email-already-in-use')) {
+        openNotificationWithIcon('error', 'Email already in Use', 'Email already in use, please use a different email address or sign in!')
       } else {
         openNotificationWithIcon('error', 'Registration Failed', 'An Error ocurred during registration please try again!')
       }
@@ -50,6 +51,22 @@ export default function Register() {
       setIsRegistering(false);
     }
   }
+  React.useEffect(() => {
+    if (authUser && !authLoading) {
+      setPageLoading(false);
+      router.push('/');
+    } else {
+      setPageLoading(false);
+      router.push('/register');
+    }
+  }, []);
+  
+    if (pageLoading) return (
+        <>
+            <Spin size="large" />
+        </>
+    )
+
 
   return (
     <div className="flex flex-col content-center justify-center h-full mt-12 w-full">
