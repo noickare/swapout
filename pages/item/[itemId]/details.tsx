@@ -1,33 +1,32 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Avatar, Button, Image } from 'antd';
+import { Avatar, Button } from 'antd';
 import { EnvironmentOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import { IItem } from '../../models/item';
+import { IItem } from '../../../models/item';
 import { useRouter } from 'next/router';
-import { getItem } from '../../services/firestore/item';
-import { openNotificationWithIcon } from '../../components/notification/Notification';
-import CenterLoader from '../../components/loader/CenterLoader';
-import Caraousel from '../../components/caraousel/Caraousel';
-import { IUser } from '../../models/user';
-import { getUser } from '../../services/firestore/users';
+import { getItem } from '../../../services/firestore/item';
+import { openNotificationWithIcon } from '../../../components/notification/Notification';
+import CenterLoader from '../../../components/loader/CenterLoader';
+import Caraousel from '../../../components/caraousel/Caraousel';
+import { IUser } from '../../../models/user';
+import { getUser } from '../../../services/firestore/users';
+import { convertToMapsLink } from '../../../utils/helpers';
+import { useAuth } from '../../../context/authContext';
+import { addDoc, collection, getDocs, query, serverTimestamp, where } from 'firebase/firestore';
+import { firestore } from '../../../services/init_firebase';
+import { THEMES } from '../../../shared/constants';
 
 export default function ItemDescription() {
     const [item, setItem] = useState<IItem | undefined>()
     const router = useRouter()
     const [owner, setOwner] = useState<IUser | undefined>();
+    const { authUser, authLoading } = useAuth();
+    const [isCreating, setIsCreating] = useState(false);
 
-    function convertToMapsLink(address: string) {
-        const link = "http://maps.google.com/maps?q=" + encodeURIComponent(address);
-        console.log(link);
-        return (
-            <Link href={link}>
-                <a target="_blank" className="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500">{address}</a>
-            </Link>
-        )
-    }
+
 
     const fetchData = useCallback(async () => {
-        const uid = router.query.uid;
+        const uid = router.query.itemId;
         if (uid) {
             try {
                 const itemData = await getItem(uid as string);
@@ -45,13 +44,13 @@ export default function ItemDescription() {
             }
         }
 
-    }, [router.query.uid])
+    }, [router.query.itemId])
 
     useEffect(() => {
         fetchData()
     }, [fetchData])
 
-    if (!item) {
+    if (!item || authLoading) {
         return (
             <CenterLoader />
         )
@@ -65,6 +64,44 @@ export default function ItemDescription() {
         }
     }
 
+    const handleCreateConversation = async () => {
+        setIsCreating(true);
+
+        const sorted = [owner?.uid, authUser?.uid].sort();
+
+        const q = query(
+            collection(firestore, "items", router.query.itemId as string,"conversations"),
+            where("users", "==", sorted)
+        );
+
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            const created = await addDoc(collection(firestore, "items", router.query.itemId as string, "conversations"), {
+                users: sorted,
+                itemId: router.query.itemId,
+                group:
+                    sorted.length > 2
+                        ? {
+                            admins: [authUser?.uid, owner?.uid],
+                            groupName: null,
+                            groupImage: null,
+                        }
+                        : {},
+                updatedAt: serverTimestamp(),
+                seen: {},
+                theme: THEMES[0],
+            });
+
+            setIsCreating(false);
+
+            router.push(`/item/${router.query.itemId}/conversations/${created.id}`)
+        } else {
+            router.push(`/item/${router.query.itemId}/conversations/${querySnapshot.docs[0].id}`)
+
+            setIsCreating(false);
+        }
+    };
 
     return (
         <div>
@@ -86,7 +123,9 @@ export default function ItemDescription() {
                                 <div className="flex items-center">
                                     <EnvironmentOutlined />
                                     <p className="sr-only">Location</p>
-                                    {convertToMapsLink(item.location.address)}
+                                    <Link href={convertToMapsLink(item.location.address)}>
+                                        <a target="_blank" className="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500">{item.location.address}</a>
+                                    </Link>
                                 </div>
                             </div>
 
@@ -130,7 +169,13 @@ export default function ItemDescription() {
                                         </div>
                                     </fieldset>
                                 </div>
-                                <Button type="primary" shape="round" size="large" className="mt-10 w-full py-3 px-8">Request</Button>
+                                <Button loading={isCreating} onClick={() => {
+                                    if (!authUser) {
+                                        router.push('/login');
+                                    } else {
+                                        handleCreateConversation()
+                                    }
+                                }} type="primary" shape="round" size="large" className="mt-10 w-full py-3 px-8">Request</Button>
                             </form>
                         </div>
 

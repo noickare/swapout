@@ -115,7 +115,7 @@ export default function CreateSwap() {
                 }
                 const createdItem = await createItem(toSaveItem);
                 setIsSubmitting(false);
-                router.push(`/item/${createdItem.uid}`)
+                router.push(`/item/${createdItem.uid}/details`)
             } catch (error) {
                 console.log(error);
                 setIsSubmitting(false);

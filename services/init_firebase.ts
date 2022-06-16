@@ -1,7 +1,7 @@
 import { initializeApp, getApps, FirebaseApp, getApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore";
+import { enableIndexedDbPersistence, getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 
@@ -20,8 +20,8 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 const firebaseAuth = getAuth(app);
-const getFirebaseAnalytics =  () => {
-    if(typeof window !== 'undefined') {
+const getFirebaseAnalytics = () => {
+    if (typeof window !== 'undefined') {
         return getAnalytics()
     }
 };
@@ -33,6 +33,15 @@ const firestore = getFirestore(app);
 
 
 const firebaseStorage = getStorage(app);
+
+// enableIndexedDbPersistence(firestore, { forceOwnership: false }).catch((err) => {
+//     if (err.code == 'failed-precondition') {
+//         console.log('multiple tabs open')
+//     } else if (err.code == 'unimplemented') {
+//         console.log('unimplemented')
+//     }
+// });
+
 
 
 

@@ -13,7 +13,7 @@ import { useRouter } from 'next/router';
 const Navbar = () => {
     const [hamburgerActive, setHamburgerActive] = useState(false);
     const isBigScreen = useMediaQuery({ query: '(min-width: 1024px)' })
-    const { authUser } = useAuth();
+    const { authUser, authLoading } = useAuth();
     const router = useRouter()
 
     const handleMenuClick: MenuProps['onClick'] = async (e) => {
@@ -137,11 +137,13 @@ const Navbar = () => {
                                 )}
                             </Dropdown>
                         ) : (
-                            <Button onClick={() => {
-                                router.push('/login')
-                            }}
+                            <Button
+                                onClick={() => {
+                                    router.push('/login')
+                                }}
                                 icon={<LoginOutlined />}
                                 size="large"
+                                loading={authLoading}
                             >
                                 Login
                             </Button>
