@@ -41,7 +41,6 @@ export const useDocumentQuery = (
     // eslint-disable-next-line
   }, [key]);
 
-  console.log('query', router.query)
 
   return { loading, error, data };
 };

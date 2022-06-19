@@ -167,12 +167,12 @@ const RightMessage: FC<RightMessageProps> = ({ message, setReplyInfo }) => {
 
         {message.type !== "removed" && (
           <>
-            <button
+            {/* <button
               onClick={() => setIsSelectReactionOpened(true)}
               className="text-lg  opacity-0 transition  group-hover:opacity-100"
             >
               <i className="bx bx-smile"></i>
-            </button>
+            </button> */}
 
             <button
               onClick={(e) => {
@@ -194,7 +194,7 @@ const RightMessage: FC<RightMessageProps> = ({ message, setReplyInfo }) => {
               <i className="bx bxs-trash"></i>
             </button>
 
-            {isSelectReactionOpened && (
+            {/* {!isSelectReactionOpened && (
               <ClickAwayListener
                 onClickAway={() => setIsSelectReactionOpened(false)}
               >
@@ -210,11 +210,11 @@ const RightMessage: FC<RightMessageProps> = ({ message, setReplyInfo }) => {
                   />
                 )}
               </ClickAwayListener>
-            )}
+            )} */}
 
-            {Object.keys(message.reactions || {}).length > 0 && (
+            {/* {Object.keys(message.reactions || {}).length > 0 && (
               <ReactionStatus message={message} position="right" />
-            )}
+            )} */}
           </>
         )}
       </div>

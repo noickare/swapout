@@ -6,6 +6,7 @@ import NextNProgress from 'nextjs-progressbar'
 import Navbar from '../components/nav/Navbar';
 import { AuthUserProvider } from '../context/authContext';
 import GooglePlacesScript from '../components/scripts/GooglePlaces';
+import { IsConversationPageProvider } from '../context/isConversationScreen';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -18,9 +19,11 @@ function MyApp({ Component, pageProps }: AppProps) {
         showOnShallow={true}
       />
       <AuthUserProvider>
-        <GooglePlacesScript />
-        <Navbar />
-        <Component {...pageProps} />
+        <IsConversationPageProvider>
+          <GooglePlacesScript />
+          <Navbar />
+          <Component {...pageProps} />
+        </IsConversationPageProvider>
       </AuthUserProvider>
     </NextUIProvider>
   )

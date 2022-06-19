@@ -318,7 +318,6 @@ const InputSection: FC<InputSectionProps> = ({
       removeEventListener("drop", dropFileHandler);
     };
   }, []);
-  console.log('isIconOpen', isGifPickerOpened)
 
   return (
     <>

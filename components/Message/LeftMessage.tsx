@@ -175,12 +175,12 @@ const LeftMessage: FC<LeftMessageProps> = ({
 
         {message.type !== "removed" && (
           <>
-            <button
+            {/* <button
               onClick={() => setIsSelectReactionOpened(true)}
               className="text-lg text-gray-500 opacity-0 transition hover:text-gray-300 group-hover:opacity-100"
             >
               <i className="bx bx-smile"></i>
-            </button>
+            </button> */}
             <button
               onClick={(e) => {
                 setReplyInfo(message);

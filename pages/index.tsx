@@ -50,8 +50,9 @@ const Home: NextPage = () => {
   }
 
   useEffect(() => {
+    console.log('pathName', router.pathname)
     fetchData();
-  }, [fetchData])
+  }, [fetchData, router.pathname])
 
   if (!items.length) {
     return (
@@ -76,7 +77,7 @@ const Home: NextPage = () => {
   }
 
   return (
-    <div className="flex justify-center content-center mt-20 flex-col">
+    <div className="flex justify-center content-center mt-3 flex-col">
       <div className="flex justify-center content-center flex-wrap">
         <InfiniteScroll
           style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}

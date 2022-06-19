@@ -25,7 +25,6 @@ const GifPicker: FC<GifPickerProps> = ({ setIsOpened, onSelect, isGifPickerOpen 
     ).then((res) => res.json())
   );
 
-  console.log('gifpicker', isGifPickerOpen)
 
   const styles = {
     cardBody: {

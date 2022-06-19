@@ -190,18 +190,22 @@ export default function ItemDescription() {
 
                                     <fieldset className="mt-4">
                                         <legend className="sr-only">Owner</legend>
-                                        <div className="flex items-center space-x-3 content-center">
-                                            {owner?.avatar?.length ? (
-                                                <Avatar
-                                                    style={{ margin: 5 }}
-                                                    src={owner.avatar}
-                                                    size={50}
-                                                />
-                                            ) : (
-                                                <Avatar size={50} style={{ backgroundColor: '#f56a00' }}>{owner?.email.charAt(0).toUpperCase()}</Avatar>
-                                            )}
-                                            <p className="text-base text-gray-900">{owner?.name}</p>
-                                        </div>
+                                        <Link href={`/profile/${owner?.uid}`}>
+                                            <a>
+                                                <div className="flex items-center space-x-3 content-center">
+                                                    {owner?.avatar?.length ? (
+                                                        <Avatar
+                                                            style={{ margin: 5 }}
+                                                            src={owner.avatar}
+                                                            size={50}
+                                                        />
+                                                    ) : (
+                                                        <Avatar size={50} style={{ backgroundColor: '#f56a00' }}>{owner?.email.charAt(0).toUpperCase()}</Avatar>
+                                                    )}
+                                                    <p className="text-base text-gray-900">{owner?.name}</p>
+                                                </div>
+                                            </a>
+                                        </Link>
                                     </fieldset>
                                 </div>
                                 <div className="flex content-center justify-center">
