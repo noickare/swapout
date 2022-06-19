@@ -17,10 +17,11 @@ export default function ConversationPage({ }: Props) {
   const {itemId, conversationId} = router.query;
 
 
-  const { data, loading, error } = useDocumentQuery(
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { data, loading, error } = conversationId ? useDocumentQuery(
     `conversation-${conversationId}`,
     doc(firestore, "items",  itemId as string ,"conversations", conversationId as string || '')
-  );
+  ) : { data: undefined, loading: false, error: undefined};
 
   const conversation = data?.data() as IConversation;
 
@@ -30,10 +31,6 @@ export default function ConversationPage({ }: Props) {
 
   const [replyInfo, setReplyInfo] = useState(null);
 
-  useEffect(() => {
-    if (conversation?.theme)
-      document.body.style.setProperty("--primary-color", conversation.theme);
-  }, [conversation?.theme || ""]);
   return (
     <div className="flex">
       {/* <SideBar /> */}
