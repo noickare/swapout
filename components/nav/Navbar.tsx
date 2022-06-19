@@ -58,7 +58,6 @@ const Navbar = (props: any) => {
     );
 
 
-  console.log('isconversationScreen', isConversationScreen)
 
     return (
         <div className="flex flex-col justify-center items-center">

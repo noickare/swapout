@@ -30,7 +30,6 @@ class AutocompleteClass extends React.PureComponent {
                     {
                         sourceId: "products",
                         getItems({ query }) {
-                            console.log('getting query', query)
                             return getAlgoliaResults({
                                 searchClient,
                                 queries: [

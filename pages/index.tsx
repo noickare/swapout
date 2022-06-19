@@ -60,7 +60,6 @@ const Home: NextPage = () => {
     )
   }
 
-  console.log(items);
 
   function renderItems() {
     return items.map((itm, i) => {

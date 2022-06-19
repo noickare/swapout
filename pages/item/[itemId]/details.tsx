@@ -36,7 +36,6 @@ export default function ItemDescription() {
             try {
                 const itemData = await getItem(uid as string);
                 const conversations = await getItemConversations(uid as string);
-                console.log('conversations', conversations)
                 if (conversations) {
                     setConversations(conversations);
                 }

@@ -43,7 +43,6 @@ export default function Listings({ }: Props) {
   async function fetchMore() {
     try {
       const newItems = await getItems(lastItem);
-      console.log('new items', newItems)
       setLastItem(newItems.lastVisible);
       setItems((prev) => [...prev, ...newItems.itemsArray])
       if (!newItems.lastVisible) {
