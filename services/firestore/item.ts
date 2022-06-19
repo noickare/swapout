@@ -1,4 +1,5 @@
-import { getDoc, setDoc, doc, getDocs, collection, query, orderBy, limit, QueryDocumentSnapshot, DocumentData, startAfter } from "firebase/firestore";
+import { getDoc, setDoc, doc, getDocs, collection, query, orderBy, limit, QueryDocumentSnapshot, DocumentData, startAfter, where } from "firebase/firestore";
+import { IConversation } from "../../models/conversation";
 import { IItem } from "../../models/item";
 import { firestore } from "../init_firebase";
 
@@ -28,11 +29,10 @@ export const getItem = async (uid: string) => {
 
 export const getItems = async (lastDoc?: QueryDocumentSnapshot<DocumentData>) => {
     try {
-        console.log('lastDoc', lastDoc?.data().name)
         const q = query(collection(firestore, "items"), orderBy("createdAt"), startAfter(lastDoc || 0), limit(15));
         const documentSnapshots = await getDocs(q)
         const lastVisible = documentSnapshots.docs[documentSnapshots.docs.length - 1];
-        const itemsArray: IItem[] = []; 
+        const itemsArray: IItem[] = [];
         documentSnapshots.forEach((doc) => {
             itemsArray.push(doc.data() as IItem)
         })
@@ -44,4 +44,42 @@ export const getItems = async (lastDoc?: QueryDocumentSnapshot<DocumentData>) =>
         throw new Error(error.message)
     }
 
+}
+
+export const getUserItems = async (userId: string, lastDoc?: QueryDocumentSnapshot<DocumentData>) => {
+    try {
+        if (userId) {
+            const itemsRef = collection(firestore, "items");
+            const q = query(itemsRef, where("ownerId", "==", userId), orderBy("createdAt"), startAfter(lastDoc || 0), limit(15));
+            const querySnapshot = await getDocs(q);
+            const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
+            const itemsArray: IItem[] = [];
+            querySnapshot.forEach((doc) => {
+                itemsArray.push(doc.data() as IItem)
+            })
+            return { lastVisible, itemsArray }
+        } else {
+            return {lastVisible: undefined, itemsArray: undefined};
+        }
+    } catch (error: any) {
+        throw new Error(error.message)
+    }
+}
+
+export const getItemConversations = async (itemId: string) => {
+    try {
+        if (itemId) {
+            const q = query(collection(firestore, "conversations"), orderBy("updatedAt", "desc"), where("itemId", "==", itemId))
+            const querySnapshot = await getDocs(q);
+            const itemsArray: IConversation[] = [];
+            querySnapshot.forEach((doc) => {
+                itemsArray.push(doc.data() as IConversation)
+            })
+            return itemsArray
+        } else {
+            return undefined
+        }
+    } catch (error: any) {
+        throw new Error(error.message)
+    }
 }

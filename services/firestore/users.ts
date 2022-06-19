@@ -1,4 +1,5 @@
-import { collection, addDoc, getDoc, doc, setDoc } from "firebase/firestore";
+import { collection, addDoc, getDoc, doc, setDoc, query, where, orderBy, startAfter, getDocs } from "firebase/firestore";
+import { IConversation } from "../../models/conversation";
 import { IUser } from "../../models/user";
 import { firestore } from "../init_firebase";
 
@@ -37,3 +38,4 @@ export const updateUser = async (user: IUser) => {
         throw new Error(error.message);
     }
 }
+

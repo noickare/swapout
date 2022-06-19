@@ -31,10 +31,11 @@ const RightMessage: FC<RightMessageProps> = ({ message, setReplyInfo }) => {
   const {authUser} = useAuth();
 
   const [isImageViewOpened, setIsImageViewOpened] = useState(false);
+  const { itemId, conversationId } = router.query;
 
   const removeMessage = (messageId: string) => {
     updateDoc(
-      doc(firestore, "conversations", uid as string, "messages", messageId),
+      doc(firestore, "items", itemId as string, "conversations", conversationId as string, "messages", messageId),
       {
         type: "removed",
         file: null,

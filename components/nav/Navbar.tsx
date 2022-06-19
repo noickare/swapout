@@ -2,15 +2,18 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useMediaQuery } from 'react-responsive'
 import { useAuth } from '../../context/authContext';
-import { Button, Dropdown, Menu, Space, Avatar, MenuProps, message } from 'antd';
+import { Button, Dropdown, Menu, Space, Avatar, MenuProps, message, AutoComplete, Input } from 'antd';
 import { LoginOutlined, LogoutOutlined, SwapOutlined, UserOutlined } from '@ant-design/icons';
+import algoliasearch from 'algoliasearch/lite';
+import { InstantSearch, Hits, Configure, Stats, Pagination, connectSearchBox } from 'react-instantsearch-dom';
 import { signOut } from "firebase/auth";
 import { firebaseAuth } from '../../services/init_firebase';
 import { openNotificationWithIcon } from '../notification/Notification';
 import { useRouter } from 'next/router';
+import AutocompleteClass from '../Search/Search';
 
 
-const Navbar = () => {
+const Navbar = (props: any) => {
     const [hamburgerActive, setHamburgerActive] = useState(false);
     const isBigScreen = useMediaQuery({ query: '(min-width: 1024px)' })
     const { authUser, authLoading } = useAuth();
@@ -48,6 +51,7 @@ const Navbar = () => {
         />
     );
 
+
     return (
         <nav className='flex items-center flex-wrap bg-purple-500 '>
             <Link href='/'>
@@ -64,6 +68,7 @@ const Navbar = () => {
                     </span>
                 </a>
             </Link>
+            <AutocompleteClass />
             <button
                 className=' inline-flex p-3 hover:bg-purple-800 rounded lg:hidden text-white ml-auto hover:text-white outline-none'
                 onClick={() => {
@@ -90,27 +95,52 @@ const Navbar = () => {
                     className={`${hamburgerActive ? '' : 'hidden'
                         }   w-full lg:inline-flex lg:flex-grow lg:w-auto`}
                 >
-                    <div className='lg:inline-flex lg:flex-row lg:ml-auto lg:w-auto w-full lg:items-center items-start  flex flex-col lg:h-auto'>
-                        <Link href='/profile'>
-                            <a className='lg:inline-flex lg:w-auto w-full px-3 py-2 rounded text-white font-bold items-center justify-center hover:bg-purple-800 hover:text-white '>
-                                Profile
-                            </a>
-                        </Link>
-                        <div
-                            className='lg:inline-flex lg:w-auto w-full px-3 py-2 rounded text-white font-bold items-center justify-center hover:bg-purple-800 hover:text-white '
-                            onClick={async () => {
-                                try {
-                                    await signOut(firebaseAuth);
-                                    router.push('/login')
-                                } catch (error) {
-                                    openNotificationWithIcon('error', 'Sign out failed', 'An Error ocurred during signing out please try again!')
-                                }
-                            }}
-                        >
-                            Logout
-                        </div>
+                    {
+                        authUser ? (
+                            <div className='lg:inline-flex lg:flex-row lg:ml-auto lg:w-auto w-full lg:items-center items-start  flex flex-col lg:h-auto'>
+                                <Link href='/profile'>
+                                    <a className='lg:inline-flex lg:w-auto w-full px-3 py-2 rounded text-white font-bold items-center justify-center hover:bg-purple-800 hover:text-white '>
+                                        Profile
+                                    </a>
+                                </Link>
+                                <Link href='/create-swap'>
+                                    <a className='mr-5 lg:inline-flex lg:w-auto w-full px-3 py-2 rounded text-white font-bold items-center justify-center hover:bg-purple-800 hover:text-white'>
+                                        <Space>
+                                            SWAP
+                                            <SwapOutlined />
+                                        </Space>
+                                    </a>
+                                </Link>
+                                <div
+                                    className='lg:inline-flex lg:w-auto w-full px-3 py-2 rounded text-white font-bold items-center justify-center hover:bg-purple-800 hover:text-white '
+                                    onClick={async () => {
+                                        try {
+                                            await signOut(firebaseAuth);
+                                            router.push('/login')
+                                        } catch (error) {
+                                            openNotificationWithIcon('error', 'Sign out failed', 'An Error ocurred during signing out please try again!')
+                                        }
+                                    }}
+                                >
+                                    Logout
+                                </div>
 
-                    </div>
+                            </div>
+                        ) : (
+                            <div className='lg:inline-flex lg:flex-row lg:ml-auto lg:w-auto w-full lg:items-center items-start  flex flex-col lg:h-auto'>
+                                <Link href='/login'>
+                                    <a className='lg:inline-flex lg:w-auto w-full px-3 py-2 rounded text-white font-bold items-center justify-center hover:bg-purple-800 hover:text-white '>
+                                        Login
+                                    </a>
+                                </Link>
+                                <Link href='/register'>
+                                    <a className='lg:inline-flex lg:w-auto w-full px-3 py-2 rounded text-white font-bold items-center justify-center hover:bg-purple-800 hover:text-white '>
+                                        Register
+                                    </a>
+                                </Link>
+                            </div>
+                        )
+                    }
                 </div>
             )}
             <div className='hidden w-full lg:inline-flex lg:flex-grow lg:w-auto'>

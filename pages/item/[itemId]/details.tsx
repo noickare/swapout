@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Avatar, Button } from 'antd';
-import { EnvironmentOutlined } from '@ant-design/icons';
+import { Avatar, Button, Tooltip, Typography } from 'antd';
+import { AntDesignOutlined, EnvironmentOutlined, UserOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { IItem } from '../../../models/item';
 import { useRouter } from 'next/router';
-import { getItem } from '../../../services/firestore/item';
+import { v4 as uuidv4 } from 'uuid';
+import { getItem, getItemConversations } from '../../../services/firestore/item';
 import { openNotificationWithIcon } from '../../../components/notification/Notification';
 import CenterLoader from '../../../components/loader/CenterLoader';
 import Caraousel from '../../../components/caraousel/Caraousel';
@@ -12,9 +13,12 @@ import { IUser } from '../../../models/user';
 import { getUser } from '../../../services/firestore/users';
 import { convertToMapsLink } from '../../../utils/helpers';
 import { useAuth } from '../../../context/authContext';
-import { addDoc, collection, getDocs, query, serverTimestamp, where } from 'firebase/firestore';
+import { addDoc, collection, doc, getDocs, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import { firestore } from '../../../services/init_firebase';
 import { THEMES } from '../../../shared/constants';
+import { IConversation } from '../../../models/conversation';
+
+const { Title, Paragraph } = Typography;
 
 export default function ItemDescription() {
     const [item, setItem] = useState<IItem | undefined>()
@@ -22,6 +26,7 @@ export default function ItemDescription() {
     const [owner, setOwner] = useState<IUser | undefined>();
     const { authUser, authLoading } = useAuth();
     const [isCreating, setIsCreating] = useState(false);
+    const [conversations, setConversations] = useState<IConversation[]>();
 
 
 
@@ -30,6 +35,11 @@ export default function ItemDescription() {
         if (uid) {
             try {
                 const itemData = await getItem(uid as string);
+                const conversations = await getItemConversations(uid as string);
+                console.log('conversations', conversations)
+                if (conversations) {
+                    setConversations(conversations);
+                }
                 setItem(itemData);
                 const ownerData = await getUser(itemData.ownerId);
                 setOwner(ownerData);
@@ -64,44 +74,69 @@ export default function ItemDescription() {
         }
     }
 
-    const handleCreateConversation = async () => {
+    const handleCreateConversation = async (isGroup?: boolean) => {
         setIsCreating(true);
 
         const sorted = [owner?.uid, authUser?.uid].sort();
 
         const q = query(
-            collection(firestore, "items", router.query.itemId as string,"conversations"),
+            collection(firestore, "items", router.query.itemId as string, "conversations"),
             where("users", "==", sorted)
         );
 
         const querySnapshot = await getDocs(q);
-
         if (querySnapshot.empty) {
-            const created = await addDoc(collection(firestore, "items", router.query.itemId as string, "conversations"), {
-                users: sorted,
-                itemId: router.query.itemId,
-                group:
-                    sorted.length > 2
-                        ? {
-                            admins: [authUser?.uid, owner?.uid],
-                            groupName: null,
-                            groupImage: null,
-                        }
-                        : {},
-                updatedAt: serverTimestamp(),
-                seen: {},
-                theme: THEMES[0],
-            });
+            if (!isGroup) {
+                const convId = uuidv4();
+                await setDoc(doc(firestore, "items", router.query.itemId as string, "conversations", convId), {
+                    users: sorted,
+                    uid: convId,
+                    itemId: router.query.itemId,
+                    group:
+                        sorted.length > 2
+                            ? {
+                                admins: [authUser?.uid, owner?.uid],
+                                groupName: null,
+                                groupImage: null,
+                            }
+                            : {},
+                    updatedAt: serverTimestamp(),
+                    seen: {},
+                    theme: THEMES[0],
+                });
+                setIsCreating(false);
+                router.push(`/item/${router.query.itemId}/conversations/${convId}`)
+            } else {
+                const convId = uuidv4();
+                await setDoc(doc(firestore, "items", router.query.itemId as string, "conversations", convId), {
+                    users: sorted,
+                    uid: convId,
+                    itemId: router.query.itemId,
+                    group:
+                        sorted.length > 2
+                            ? {
+                                admins: [authUser?.uid],
+                                groupName: null,
+                                groupImage: null,
+                            }
+                            : {},
+                    updatedAt: serverTimestamp(),
+                    seen: {},
+                    theme: THEMES[0],
+                });
 
-            setIsCreating(false);
 
-            router.push(`/item/${router.query.itemId}/conversations/${created.id}`)
+                setIsCreating(false);
+                router.push(`/conversations/${convId}`)
+            }
+
         } else {
-            router.push(`/item/${router.query.itemId}/conversations/${querySnapshot.docs[0].id}`)
+            !isGroup ? router.push(`/item/${router.query.itemId}/conversations/${querySnapshot.docs[0].id}`) : router.push(`/conversations/${querySnapshot.docs[0].id}`)
 
             setIsCreating(false);
         }
     };
+
 
     return (
         <div>
@@ -169,6 +204,70 @@ export default function ItemDescription() {
                                         </div>
                                     </fieldset>
                                 </div>
+                                <div className="flex content-center justify-center">
+                                    <Avatar.Group
+                                        maxCount={2}
+                                        maxPopoverTrigger="click"
+                                        size="large"
+                                        maxStyle={{ color: '#f56a00', backgroundColor: '#fde3cf', cursor: 'pointer' }}
+                                    >
+                                        {
+                                            conversations && conversations.map((conv, i) => {
+                                                return (
+                                                    <div key={i}>
+                                                        <Link href={`/conversations/${conv.uid}`}>
+                                                            <a>
+                                                                <Avatar style={{ backgroundColor: '#87d068' }} icon={<UserOutlined />} />
+                                                            </a>
+                                                        </Link>
+                                                    </div>
+                                                )
+                                            })
+                                        }
+                                    </Avatar.Group>
+                                    <Paragraph style={{ marginLeft: 10 }}> Conversations</Paragraph>
+                                </div>
+                                {/* <Button loading={isCreating} onClick={async () => {
+                                    if (!authUser) {
+                                        router.push('/login');
+                                    } else {
+                                        setIsCreating(true);
+
+                                        const sorted = [authUser?.uid].sort();
+
+                                        const q = query(
+                                            collection(firestore, "conversations"),
+                                            where("itemId", "==", router.query.itemId)
+                                        );
+                                        const querySnapshot = await getDocs(q);
+                                        if (querySnapshot.empty) {
+                                            const convId = uuidv4();
+                                            await setDoc(doc(firestore, "conversations", convId), {
+                                                users: sorted,
+                                                itemId: router.query.itemId,
+                                                uid: convId,
+                                                group:
+                                                    sorted.length > 2
+                                                        ? {
+                                                            admins: [authUser?.uid],
+                                                            groupName: null,
+                                                            groupImage: null,
+                                                        }
+                                                        : {},
+                                                updatedAt: serverTimestamp(),
+                                                seen: {},
+                                                theme: THEMES[0],
+                                            });
+
+                                            setIsCreating(false);
+                                            router.push(`/conversations/${convId}`)
+                                        } else {
+                                            router.push(`/conversations/${querySnapshot.docs[0].id}`)
+                                            setIsCreating(false);
+                                        }
+                                    }
+                                }
+                                } shape="round" size="large" className="mt-10 w-full py-3 px-8">Start Conversation</Button> */}
                                 <Button loading={isCreating} onClick={() => {
                                     if (!authUser) {
                                         router.push('/login');

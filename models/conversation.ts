@@ -1,4 +1,5 @@
 export interface IConversation {
+  uid: string;
   users: string[];
   group?: {
     admins: string[];
