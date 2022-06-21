@@ -27,9 +27,14 @@ export const getItem = async (uid: string) => {
     }
 }
 
-export const getItems = async (lastDoc?: QueryDocumentSnapshot<DocumentData>) => {
+export interface getItemsParams {
+   lastDoc?: QueryDocumentSnapshot<DocumentData>,
+   itemsLimit?: number
+}
+
+export const getItems = async (params?: getItemsParams) => {
     try {
-        const q = query(collection(firestore, "items"), orderBy("createdAt"), startAfter(lastDoc || 0), limit(15));
+        const q = query(collection(firestore, "items"), orderBy("createdAt"), startAfter(params?.lastDoc || 0), limit(params?.itemsLimit || 15));
         const documentSnapshots = await getDocs(q)
         const lastVisible = documentSnapshots.docs[documentSnapshots.docs.length - 1];
         const itemsArray: IItem[] = [];

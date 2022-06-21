@@ -14,6 +14,7 @@ import { IItem } from '../models/item';
 import { createItem } from '../services/firestore/item';
 import { serverTimestamp } from 'firebase/firestore';
 import { openNotificationWithIcon } from '../components/notification/Notification';
+import { GenerateSiteTags } from '../utils/generateSiteTags';
 
 
 const { Title } = Typography;
@@ -148,121 +149,124 @@ export default function CreateSwap() {
     )
 
     return (
-        <div className="flex flex-col content-center justify-center h-full mt-12 w-full">
-            <Title className="text-center" level={3}>Add Item to Swap</Title>
-            <Form
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 14 }}
-                style={{ margin: '0 auto' }}
-                className="w-1/2" form={form}
-                name="control-hooks"
-                onFinish={onFinish}
-            >
-                <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-                    <Input />
-                </Form.Item>
-                <Form.Item name="location" label="Location" rules={[{ required: true }]}>
-                    <PlacesAutocomplete
-                        value={address?.address}
-                        onChange={(add) => {
-                            setAddress({ address: add, lat: undefined, lng: undefined });
-                        }
-                        }
-                        onSelect={(addSelected) => {
-                            form.setFieldsValue({ location: addSelected })
-                            geocodeByAddress(addSelected)
-                                .then((results) => getLatLng(results[0]))
-                                .then(({ lat, lng }) => {
-                                    setAddress({ address: addSelected, lat: lat, lng: lng });
-                                })
-                        }}
-                    >
-                        {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
-                            <div>
-                                <Input
-                                    {...getInputProps({
-                                        placeholder: 'Search Location ...',
-                                    })}
-                                />
-                                <div className="autocomplete-dropdown-container">
-                                    {loading && <div>Loading...</div>}
-                                    {suggestions.map((suggestion) => {
-                                        const className = suggestion.active ? 'suggestion-item--active' : 'suggestion-item'
-                                        // inline style for demonstration purpose
-                                        const style = suggestion.active
-                                            ? { backgroundColor: '#fafafa', cursor: 'pointer' }
-                                            : { backgroundColor: '#ffffff', cursor: 'pointer' }
-                                        return (
-                                            // eslint-disable-next-line react/jsx-key
-                                            <div
-                                                {...getSuggestionItemProps(suggestion, {
-                                                    className,
-                                                    style,
-                                                })}
-                                            >
-                                                <span>{suggestion.description}</span>
-                                            </div>
-                                        )
-                                    })}
+        <>
+            <GenerateSiteTags title="Swapout | List an item to swap" description="List a new item to swap" image="" url={`${process.env.NEXT_PUBLIC_URL}/register` || 'http://swapout.vercel.app/register'} />
+            <div className="flex flex-col content-center justify-center h-full mt-12 w-full">
+                <Title className="text-center" level={3}>Add Item to Swap</Title>
+                <Form
+                    labelCol={{ span: 8 }}
+                    wrapperCol={{ span: 14 }}
+                    style={{ margin: '0 auto' }}
+                    className="w-1/2" form={form}
+                    name="control-hooks"
+                    onFinish={onFinish}
+                >
+                    <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name="location" label="Location" rules={[{ required: true }]}>
+                        <PlacesAutocomplete
+                            value={address?.address}
+                            onChange={(add) => {
+                                setAddress({ address: add, lat: undefined, lng: undefined });
+                            }
+                            }
+                            onSelect={(addSelected) => {
+                                form.setFieldsValue({ location: addSelected })
+                                geocodeByAddress(addSelected)
+                                    .then((results) => getLatLng(results[0]))
+                                    .then(({ lat, lng }) => {
+                                        setAddress({ address: addSelected, lat: lat, lng: lng });
+                                    })
+                            }}
+                        >
+                            {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
+                                <div>
+                                    <Input
+                                        {...getInputProps({
+                                            placeholder: 'Search Location ...',
+                                        })}
+                                    />
+                                    <div className="autocomplete-dropdown-container">
+                                        {loading && <div>Loading...</div>}
+                                        {suggestions.map((suggestion) => {
+                                            const className = suggestion.active ? 'suggestion-item--active' : 'suggestion-item'
+                                            // inline style for demonstration purpose
+                                            const style = suggestion.active
+                                                ? { backgroundColor: '#fafafa', cursor: 'pointer' }
+                                                : { backgroundColor: '#ffffff', cursor: 'pointer' }
+                                            return (
+                                                // eslint-disable-next-line react/jsx-key
+                                                <div
+                                                    {...getSuggestionItemProps(suggestion, {
+                                                        className,
+                                                        style,
+                                                    })}
+                                                >
+                                                    <span>{suggestion.description}</span>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                    </PlacesAutocomplete>
-                </Form.Item>
-                <Form.Item name="description" label="Description" rules={[{ required: true }]}>
-                    <TextArea rows={4} />
-                </Form.Item>
-                <Form.Item name="condition" label="Condition" rules={[{ required: true }]}>
-                    <Select
-                        placeholder="Select Item Condition"
-                        allowClear
-                    >
-                        <Option value="Used">Used</Option>
-                        <Option value="New">New</Option>
-                        <Option value="Refurbished">Refurbished</Option>
-                    </Select>
-                </Form.Item>
-                <Form.Item name="category" label="Category" rules={[{ required: false }]}>
-                    <AutoComplete
-                        options={categories}
-                        placeholder="Category"
-                        filterOption={(inputValue, option) =>
-                            option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
-                        }
-                    />
-                </Form.Item>
-                <Form.Item name="yearManufactured" label="Year Manufactured" rules={[{ required: true }]}>
-                    <YearPicker />
-                </Form.Item>
-                <Form.Item name="yearBought" label="Year Bought" rules={[{ required: true }]}>
-                    <YearPicker />
-                </Form.Item>
-                <Form.Item name="images" label="Images">
-                    <Upload
-                        action="/api/antupload"
-                        listType="picture-card"
-                        fileList={imageList}
-                        onPreview={handleImagePreview}
-                        onChange={handleImageChange}
-                        //  @ts-ignore
-                        beforeUpload={(file: RcFile, FileList: RcFile[]) => beforeUpload(file, FileList)}
-                        accept="image/*"
-                    >
-                        {imageList.length >= 15 ? null : uploadButton}
-                    </Upload>
-                    <Modal visible={previewImageVisible} footer={null} onCancel={() => setPreviewImageVisible(false)}>
-                        <img alt="example" style={{ width: '100%' }} src={previewImage} />
-                    </Modal>
-                </Form.Item>
-                <Form.Item name="itemTOExchange" label="Item to exchange with" rules={[{ required: true }]}>
-                    <Input />
-                </Form.Item>
-                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                    <Button loading={isSubmitting} disabled={isSubmitting} type="primary" htmlType="submit" size="large">
-                        Create
-                    </Button>
-                </Form.Item>
-            </Form>
-        </div>
+                            )}
+                        </PlacesAutocomplete>
+                    </Form.Item>
+                    <Form.Item name="description" label="Description" rules={[{ required: true }]}>
+                        <TextArea rows={4} />
+                    </Form.Item>
+                    <Form.Item name="condition" label="Condition" rules={[{ required: true }]}>
+                        <Select
+                            placeholder="Select Item Condition"
+                            allowClear
+                        >
+                            <Option value="Used">Used</Option>
+                            <Option value="New">New</Option>
+                            <Option value="Refurbished">Refurbished</Option>
+                        </Select>
+                    </Form.Item>
+                    <Form.Item name="category" label="Category" rules={[{ required: false }]}>
+                        <AutoComplete
+                            options={categories}
+                            placeholder="Category"
+                            filterOption={(inputValue, option) =>
+                                option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                            }
+                        />
+                    </Form.Item>
+                    <Form.Item name="yearManufactured" label="Year Manufactured" rules={[{ required: true }]}>
+                        <YearPicker />
+                    </Form.Item>
+                    <Form.Item name="yearBought" label="Year Bought" rules={[{ required: true }]}>
+                        <YearPicker />
+                    </Form.Item>
+                    <Form.Item name="images" label="Images">
+                        <Upload
+                            action="/api/antupload"
+                            listType="picture-card"
+                            fileList={imageList}
+                            onPreview={handleImagePreview}
+                            onChange={handleImageChange}
+                            //  @ts-ignore
+                            beforeUpload={(file: RcFile, FileList: RcFile[]) => beforeUpload(file, FileList)}
+                            accept="image/*"
+                        >
+                            {imageList.length >= 15 ? null : uploadButton}
+                        </Upload>
+                        <Modal visible={previewImageVisible} footer={null} onCancel={() => setPreviewImageVisible(false)}>
+                            <img alt="example" style={{ width: '100%' }} src={previewImage} />
+                        </Modal>
+                    </Form.Item>
+                    <Form.Item name="itemTOExchange" label="Item to exchange with" rules={[{ required: true }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                        <Button loading={isSubmitting} disabled={isSubmitting} type="primary" htmlType="submit" size="large">
+                            Create
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </div>
+        </>
     )
 }

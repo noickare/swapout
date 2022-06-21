@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { FC } from "react";
+import { FC, useCallback, useState } from "react";
 import { IMAGE_PROXY } from "../../shared/constants";
 import Skeleton from "../Skeleton";
 import { useLastMessage } from "../../hooks/useLastMessage";
@@ -8,6 +8,9 @@ import { useUsersInfo } from "../../hooks/useUsersInfo";
 import { useAuth } from "../../context/authContext";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { getItem, getItemConversations } from "../../services/firestore/item";
+import { openNotificationWithIcon } from "../notification/Notification";
+import { IItem } from "../../models/item";
 
 interface SelectConversationProps {
   conversation: IConversation;
@@ -22,8 +25,29 @@ const SelectConversation: FC<SelectConversationProps> = ({
   const { authUser } = useAuth();
 
   const filtered = users?.filter((user) => user.id !== authUser?.uid);
+  const [item, setItem] = useState<IItem | undefined>()
 
   const router = useRouter();
+
+  const fetchData = useCallback(async () => {
+    const uid = router.query.itemId;
+    if (uid) {
+      try {
+        const itemData = await getItem(uid as string);
+        setItem(itemData);
+      } catch (error: any) {
+        console.log(error);
+        if (error.message.includes('Item not found')) {
+          router.push('/404');
+        } else {
+          router.push('/500');
+          openNotificationWithIcon('error', 'Internal server error', 'An Error ocurred while fetching latest data. Please refresh the page!')
+        }
+      }
+    }
+
+  }, [router.query.itemId])
+
 
   const {
     data: lastMessage,
@@ -108,6 +132,7 @@ const SelectConversation: FC<SelectConversationProps> = ({
               src={IMAGE_PROXY(filtered?.[1]?.data()?.photoURL)}
               alt=""
             />
+            <div className="bg-primary absolute top-1/2 right-4 h-[10px] w-[10px] -translate-y-1/2 rounded-full">No messages yet</div>
           </div>
         )}
         <div className="flex flex-grow flex-col items-start gap-1 py-1">

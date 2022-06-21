@@ -17,6 +17,8 @@ import { addDoc, collection, doc, getDocs, query, serverTimestamp, setDoc, where
 import { firestore } from '../../../services/init_firebase';
 import { THEMES } from '../../../shared/constants';
 import { IConversation } from '../../../models/conversation';
+import { GenerateSiteTags } from '../../../utils/generateSiteTags';
+import configs from '../../../shared/configs';
 
 const { Title, Paragraph } = Typography;
 
@@ -170,7 +172,8 @@ export default function ItemDescription() {
 
 
     return (
-        <div>
+        <>
+            <GenerateSiteTags title={item.name} description={item.description} image={item.images?.length ? item.images[0]: configs.noImage} url={`${process.env.NEXT_PUBLIC_URL}/item/${item.uid}/details` || `http://swapout.vercel.app/item/${item.uid}/details`} />
             <div>
                 <div className="pt-6">
                     {renderImages()}
@@ -326,6 +329,6 @@ export default function ItemDescription() {
                 </div>
             </div>
 
-        </div>
+        </>
     )
 }

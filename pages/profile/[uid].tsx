@@ -15,6 +15,7 @@ import { getUser } from '../../services/firestore/users';
 import configs from '../../shared/configs';
 import { convertToMapsLink } from '../../utils/helpers';
 import Share from '../../components/shared/Share';
+import { GenerateSiteTags } from '../../utils/generateSiteTags';
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -38,45 +39,47 @@ export default function UserProfile() {
         router.push('/500');
       }
     }
-  }, [userData])
+  }, [router.query.uid])
 
   useEffect(() => {
     fetchData();
-  }, [userData])
+  }, [fetchData])
 
   return (
-    <div className="m-20">
-      <div className="flex items-center content-center">
-        <Avatar
-          size={128}
-          src={userData?.avatar || configs.noImage}
-        />
-        <div className="m-5">
-          <Title level={5}>{userData?.name || "Nameless"}</Title>
-          <EnvironmentOutlined />
-          <p className="sr-only">Location</p>
-          <Link href={convertToMapsLink(userData?.location?.address || "")}>
-            <a target="_blank" className="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500">staten island Ny</a>
-          </Link>
-          <div className="my-5">
-            <Share />
+    <>
+      <GenerateSiteTags title={userData?.name || "profile"} description={userData?.bio || ""} image={userData?.avatar || configs.noImage} url={`${process.env.NEXT_PUBLIC_URL}/profile/${userData?.uid}}` || `http://swapout.vercel.app/profile/${userData?.uid}`} />
+      <div className="m-20">
+        <div className="flex items-center content-center">
+          <Avatar
+            size={128}
+            src={userData?.avatar || configs.noImage}
+          />
+          <div className="m-5">
+            <Title level={5}>{userData?.name || "Nameless"}</Title>
+            <EnvironmentOutlined />
+            <p className="sr-only">Location</p>
+            <Link href={convertToMapsLink(userData?.location?.address || "")}>
+              <a target="_blank" className="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500">staten island Ny</a>
+            </Link>
+            <div className="my-5">
+              <Share />
+            </div>
           </div>
         </div>
-      </div>
-      <div>
-        <Tabs centered defaultActiveKey="2" size="large" type="card">
-          <TabPane
-            tab={
-              <span>
-                <UnorderedListOutlined />
-                Listed
-              </span>
-            }
-            key="1"
-          >
-            <Listings />
-          </TabPane>
-          {/* <TabPane
+        <div>
+          <Tabs centered defaultActiveKey="2" size="large" type="card">
+            <TabPane
+              tab={
+                <span>
+                  <UnorderedListOutlined />
+                  Listed
+                </span>
+              }
+              key="1"
+            >
+              <Listings />
+            </TabPane>
+            {/* <TabPane
             tab={
               <span>
                 <WechatOutlined />
@@ -87,11 +90,12 @@ export default function UserProfile() {
           >
             <Conversations />
           </TabPane> */}
-        </Tabs>
+          </Tabs>
+        </div>
+        <div className="mt-20">
+          <Divider />
+        </div>
       </div>
-      <div className="mt-20">
-        <Divider />
-      </div>
-    </div>
+    </>
   )
 }

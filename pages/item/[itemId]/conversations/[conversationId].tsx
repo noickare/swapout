@@ -13,6 +13,7 @@ import { useIsConversationScreen } from '../../../../context/isConversationScree
 import { useDocumentQuery } from '../../../../hooks/useDocumentQuery';
 import { IConversation } from '../../../../models/conversation';
 import { firestore } from '../../../../services/init_firebase';
+import { GenerateSiteTags } from '../../../../utils/generateSiteTags';
 
 type Props = {}
 
@@ -76,44 +77,47 @@ export default function ConversationPage({ }: Props) {
 
 
   return (
-    <div className="flex flex-grow items-stretch">
-      {
-        isDesktopOrLaptop && (
-          <SideBar />
-        )
-      }
-      <div className="flex flex-grow flex-col items-stretch">
-        {loading ? (
-          <>
-            <div className="border-dark-lighten h-20 border-b"></div>
-            <div className="flex-grow"></div>
-            <InputSection disabled />
-          </>
-        ) : !conversation ||
-          error ||
-          !conversation.users.includes(authUser?.uid as string) ? (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-6">
-            <Image className="h-32 w-32 object-cover" src="/error.svg" alt="" />
-            <p className="text-center text-lg">Conversation does not exists</p>
-          </div>
-        ) : (
-          <>
-            {/* <ChatHeader conversation={conversation} /> */}
-            <ChatView
-              replyInfo={replyInfo}
-              setReplyInfo={setReplyInfo}
-              inputSectionOffset={inputSectionOffset}
-              conversation={conversation}
-            />
-            <InputSection
-              setInputSectionOffset={setInputSectionOffset}
-              replyInfo={replyInfo}
-              setReplyInfo={setReplyInfo}
-              disabled={false}
-            />
-          </>
-        )}
+    <>
+      <GenerateSiteTags title="conversations" description="" image="" url={`${process.env.NEXT_PUBLIC_URL}` || `http://swapout.vercel.app`} />
+      <div className="flex flex-grow items-stretch">
+        {
+          isDesktopOrLaptop && (
+            <SideBar />
+          )
+        }
+        <div className="flex flex-grow flex-col items-stretch h-screen">
+          {loading ? (
+            <>
+              <div className="border-dark-lighten h-20 border-b"></div>
+              <div className="flex-grow"></div>
+              <InputSection disabled />
+            </>
+          ) : !conversation ||
+            error ||
+            !conversation.users.includes(authUser?.uid as string) ? (
+            <div className="flex h-full w-full flex-col items-center justify-center gap-6">
+              <Image className="h-32 w-32 object-cover" src="/error.svg" alt="" />
+              <p className="text-center text-lg">Conversation does not exists</p>
+            </div>
+          ) : (
+            <>
+              {/* <ChatHeader conversation={conversation} /> */}
+              <ChatView
+                replyInfo={replyInfo}
+                setReplyInfo={setReplyInfo}
+                inputSectionOffset={inputSectionOffset}
+                conversation={conversation}
+              />
+              <InputSection
+                setInputSectionOffset={setInputSectionOffset}
+                replyInfo={replyInfo}
+                setReplyInfo={setReplyInfo}
+                disabled={false}
+              />
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }

@@ -14,9 +14,10 @@ import { getItems } from '../services/firestore/item';
 import configs from '../shared/configs';
 import { convertToMapsLink, truncateString } from '../utils/helpers';
 import dynamic from 'next/dynamic'
+import { GenerateSiteTags } from '../utils/generateSiteTags';
 
 const InfiniteScroll = dynamic(() => import("react-infinite-scroll-component"), {
-ssr: false,
+  ssr: false,
 });
 
 
@@ -43,7 +44,7 @@ const Home: NextPage = () => {
 
   async function fetchMore() {
     try {
-      const newItems = await getItems(lastItem);
+      const newItems = await getItems({ lastDoc: lastItem });
       setLastItem(newItems.lastVisible);
       setItems((prev) => [...prev, ...newItems.itemsArray])
       if (!newItems.lastVisible) {
@@ -69,50 +70,53 @@ const Home: NextPage = () => {
     return items.map((itm, i) => {
       return (
         <div className="m-5" key={i}>
-            <Link href={`/item/${itm.uid}/details`}>
-              <a>
-               <ProductCard itemToExchangeWith={itm.itemToExchangeWith} address={itm.location.address} name={itm.name} image={itm.images ? itm.images[0] : configs.noImage} />
-              </a>
-            </Link>
+          <Link href={`/item/${itm.uid}/details`}>
+            <a>
+              <ProductCard itemToExchangeWith={itm.itemToExchangeWith} address={itm.location.address} name={itm.name} image={itm.images ? itm.images[0] : configs.noImage} />
+            </a>
+          </Link>
         </div>
       )
     })
   }
 
   return (
-    <div className="flex justify-center content-center mt-3 flex-col">
-      <div className="flex justify-center content-center flex-wrap">
-        <InfiniteScroll
-          style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}
-          dataLength={items.length} //This is important field to render the next data
-          next={fetchMore}
-          hasMore={hasNextCursor}
-          loader={<><CenterLoader /></>}
-          endMessage={
-            <p style={{ textAlign: 'center' }}>
-              <b>Yay! You have seen it all</b>
-            </p>
-          }
-          // below props only if you need pull down functionality
-          refreshFunction={fetchMore}
-          pullDownToRefresh
-          pullDownToRefreshThreshold={50}
-          pullDownToRefreshContent={
-            <h3 style={{ textAlign: 'center' }}>&#8595; Pull down to refresh</h3>
-          }
-          releaseToRefreshContent={
-            <h3 style={{ textAlign: 'center' }}>&#8593; Release to refresh</h3>
-          }
-        >
-          <div className="flex content-center justify-center flex-wrap">
-            {renderItems()}
-          </div>
-        </InfiniteScroll>
-      </div>
-      {/* <div>
+    <>
+      <GenerateSiteTags title="Swapout" description="Get the things you always wanted by swapping out with things you currently own" image="" url={process.env.NEXT_PUBLIC_URL || 'http://swapout.vercel.app'} />
+      <div className="flex justify-center content-center mt-3 flex-col">
+        <div className="flex justify-center content-center flex-wrap">
+          <InfiniteScroll
+            style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}
+            dataLength={items.length} //This is important field to render the next data
+            next={fetchMore}
+            hasMore={hasNextCursor}
+            loader={<><CenterLoader /></>}
+            endMessage={
+              <p style={{ textAlign: 'center' }}>
+                <b>Yay! You have seen it all</b>
+              </p>
+            }
+            // below props only if you need pull down functionality
+            refreshFunction={fetchMore}
+            pullDownToRefresh
+            pullDownToRefreshThreshold={50}
+            pullDownToRefreshContent={
+              <h3 style={{ textAlign: 'center' }}>&#8595; Pull down to refresh</h3>
+            }
+            releaseToRefreshContent={
+              <h3 style={{ textAlign: 'center' }}>&#8593; Release to refresh</h3>
+            }
+          >
+            <div className="flex content-center justify-center flex-wrap">
+              {renderItems()}
+            </div>
+          </InfiniteScroll>
+        </div>
+        {/* <div>
         <Button type="primary" size="large" onClick={fetchMore}>Load More</Button>
       </div> */}
-    </div>
+      </div>
+    </>
   )
 }
 
