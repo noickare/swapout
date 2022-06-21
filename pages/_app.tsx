@@ -3,10 +3,14 @@ require('../styles/antd.less')
 import type { AppProps } from 'next/app'
 import { NextUIProvider } from '@nextui-org/react';
 import NextNProgress from 'nextjs-progressbar'
-import Navbar from '../components/nav/Navbar';
 import { AuthUserProvider } from '../context/authContext';
 import GooglePlacesScript from '../components/scripts/GooglePlaces';
 import { IsConversationPageProvider } from '../context/isConversationScreen';
+import dynamic from 'next/dynamic';
+
+const Navbar = dynamic(() => import("../components/nav/Navbar"), {
+  ssr: false,
+});
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (

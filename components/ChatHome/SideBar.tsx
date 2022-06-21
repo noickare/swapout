@@ -25,24 +25,27 @@ const SideBar: FC = () => {
   const [data, setData] = useState<QuerySnapshot<DocumentData> | null>(null);
   const [loading, setLoading] = useState(!data);
   const [error, setError] = useState(false);
+  const router = useRouter();
+  const { itemId, conversationId } = router.query;
+
 
 
 
   useEffect(() => {
-    if(authUser) {
+    if (authUser) {
       const unsubscribe = onSnapshot(
-        query(collection(firestore, "conversations"), orderBy("updatedAt", "desc"), where("users", "array-contains", authUser?.uid)),
-      (snapshot) => {
-        setData(snapshot);
-        setLoading(false);
-        setError(false);
-      },
-      (err) => {
-        console.log(err);
-        setData(null);
-        setLoading(false);
-        setError(true);
-      }
+        query(collection(firestore, "userConversationList"), orderBy("updatedAt", "desc")),
+        (snapshot) => {
+          setData(snapshot);
+          setLoading(false);
+          setError(false);
+        },
+        (err) => {
+          console.log(err);
+          setData(null);
+          setLoading(false);
+          setError(true);
+        }
       );
       return () => {
         unsubscribe();
@@ -51,10 +54,7 @@ const SideBar: FC = () => {
 
   }, [authUser]);
 
-  console.log({data, error, loading, empty: data?.empty, docs: data?.docs, authUser: authUser?.uid})
 
-  const router = useRouter();
-  const { uid } = router.query
 
 
   if (!authUser || loading) {
@@ -66,64 +66,11 @@ const SideBar: FC = () => {
   return (
     <>
       <div
-        className={`border-dark-lighten h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden border-r ${!uid
+        className={`border-dark-lighten h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden border-r ${!conversationId
           ? "hidden w-[350px] md:!block"
           : "w-full md:!w-[350px]"
           }`}
       >
-        <div className="border-dark-lighten flex h-20 items-center justify-between border-b px-6">
-
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setCreateConversationOpened(true)}
-              className="bg-dark-lighten h-8 w-8 rounded-full"
-            >
-              <i className="bx bxs-edit text-xl"></i>
-            </button>
-
-            <ClickAwayListener onClickAway={() => setIsDropdownOpened(false)}>
-              {(ref) => (
-                <div ref={ref} className="relative z-10">
-                  <img
-                    onClick={() => setIsDropdownOpened((prev) => !prev)}
-                    className="h-8 w-8 cursor-pointer rounded-full object-cover"
-                    src={
-                      authUser?.avatar
-                        ? IMAGE_PROXY(authUser.avatar)
-                        : DEFAULT_AVATAR
-                    }
-                    alt=""
-                  />
-
-                  <div
-                    className={`border-dark-lighten bg-dark absolute top-full right-0 flex w-max origin-top-right flex-col items-stretch overflow-hidden rounded-md border py-1 shadow-lg transition-all duration-200 ${isDropdownOpened
-                      ? "visible scale-100 opacity-100"
-                      : "invisible scale-0 opacity-0"
-                      }`}
-                  >
-                    <button
-                      onClick={() => {
-                        setIsUserInfoOpened(true);
-                        setIsDropdownOpened(false);
-                      }}
-                      className="hover:bg-dark-lighten flex items-center gap-1 px-3 py-1 transition duration-300"
-                    >
-                      <i className="bx bxs-user text-xl"></i>
-                      <span className="whitespace-nowrap">Profile</span>
-                    </button>
-                    <button
-                      onClick={() => router.push('/')}
-                      className="hover:bg-dark-lighten flex items-center gap-1 px-3 py-1 transition duration-300"
-                    >
-                      <i className="bx bx-log-out text-xl"></i>
-                      <span className="whitespace-nowrap">Home</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </ClickAwayListener>
-          </div>
-        </div>
         {loading ? (
           <div className="my-6 flex justify-center">
             <Spin />
@@ -155,7 +102,7 @@ const SideBar: FC = () => {
         )}
       </div>
       {/* {createConversationOpened && ( */}
-        <CreateConversation setIsOpened={setCreateConversationOpened} isOpen={createConversationOpened} />
+      <CreateConversation setIsOpened={setCreateConversationOpened} isOpen={createConversationOpened} />
 
       {/* )} */}
 

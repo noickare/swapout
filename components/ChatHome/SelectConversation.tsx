@@ -29,7 +29,9 @@ const SelectConversation: FC<SelectConversationProps> = ({
     data: lastMessage,
     loading: lastMessageLoading,
     error: lastMessageError,
-  } = useLastMessage(conversationId);
+  } = useLastMessage(conversationId, conversation.itemId && conversation.itemId);
+
+
 
   if (loading)
     return (
@@ -45,7 +47,7 @@ const SelectConversation: FC<SelectConversationProps> = ({
   if (conversation.users.length === 2)
     return (
       <Link
-        href={`/item/${router.query.itemId}/conversations/${conversationId}`}
+        href={`/item/${conversation.itemId}/conversations/${conversationId}`}
         className={`hover:bg-dark-lighten relative flex items-stretch gap-2 py-2 px-5 transition duration-300 ${conversationId === router.query.conversationId ? "!bg-[#263342]" : ""
           }`}
       >
@@ -87,52 +89,52 @@ const SelectConversation: FC<SelectConversationProps> = ({
         }`}
     >
       <a>
-      {conversation?.group?.groupImage ? (
-        <img
-          className="h-14 w-14 flex-shrink-0 rounded-full object-cover"
-          src={conversation.group.groupImage}
-          alt=""
-        />
-      ) : (
-        <div className="relative h-14 w-14">
+        {conversation?.group?.groupImage ? (
           <img
-            className="absolute top-0 right-0 h-10 w-10 flex-shrink-0 rounded-full object-cover"
-            src={IMAGE_PROXY(filtered?.[0]?.data()?.photoURL)}
+            className="h-14 w-14 flex-shrink-0 rounded-full object-cover"
+            src={conversation.group.groupImage}
             alt=""
           />
-          <img
-            className={`border-dark group-hover:border-dark-lighten absolute bottom-0 left-0 z-[1] h-10 w-10 flex-shrink-0 rounded-full border-[3px] object-cover transition duration-300 ${conversationId === router.query.conversationId ? "!border-[#252F3C]" : ""
-              }`}
-            src={IMAGE_PROXY(filtered?.[1]?.data()?.photoURL)}
-            alt=""
-          />
-        </div>
-      )}
-      <div className="flex flex-grow flex-col items-start gap-1 py-1">
-        <p className="max-w-[240px] overflow-hidden text-ellipsis whitespace-nowrap">
-          {conversation?.group?.groupName ||
-            filtered
-              ?.map((user) => user.data()?.displayName)
-              .slice(0, 3)
-              .join(", ")}
-        </p>
-        {lastMessageLoading ? (
-          <Skeleton className="w-2/3 flex-grow" />
         ) : (
-          <p className="max-w-[240px] flex-grow overflow-hidden text-ellipsis whitespace-nowrap text-sm text-gray-400">
-            {lastMessage?.message}
-          </p>
+          <div className="relative h-14 w-14">
+            <img
+              className="absolute top-0 right-0 h-10 w-10 flex-shrink-0 rounded-full object-cover"
+              src={IMAGE_PROXY(filtered?.[0]?.data()?.photoURL)}
+              alt=""
+            />
+            <img
+              className={`border-dark group-hover:border-dark-lighten absolute bottom-0 left-0 z-[1] h-10 w-10 flex-shrink-0 rounded-full border-[3px] object-cover transition duration-300 ${conversationId === router.query.conversationId ? "!border-[#252F3C]" : ""
+                }`}
+              src={IMAGE_PROXY(filtered?.[1]?.data()?.photoURL)}
+              alt=""
+            />
+          </div>
         )}
-      </div>
-      {!lastMessageLoading && (
-        <>
-          {lastMessage?.lastMessageId !== null &&
-            lastMessage?.lastMessageId !==
-            conversation.seen[authUser?.uid as string] && (
-              <div className="bg-primary absolute top-1/2 right-4 h-[10px] w-[10px] -translate-y-1/2 rounded-full"></div>
-            )}
-        </>
-      )}
+        <div className="flex flex-grow flex-col items-start gap-1 py-1">
+          <p className="max-w-[240px] overflow-hidden text-ellipsis whitespace-nowrap">
+            {conversation?.group?.groupName ||
+              filtered
+                ?.map((user) => user.data()?.displayName)
+                .slice(0, 3)
+                .join(", ")}
+          </p>
+          {lastMessageLoading ? (
+            <Skeleton className="w-2/3 flex-grow" />
+          ) : (
+            <p className="max-w-[240px] flex-grow overflow-hidden text-ellipsis whitespace-nowrap text-sm text-gray-400">
+              {lastMessage?.message}
+            </p>
+          )}
+        </div>
+        {!lastMessageLoading && (
+          <>
+            {lastMessage?.lastMessageId !== null &&
+              lastMessage?.lastMessageId !==
+              conversation.seen[authUser?.uid as string] && (
+                <div className="bg-primary absolute top-1/2 right-4 h-[10px] w-[10px] -translate-y-1/2 rounded-full"></div>
+              )}
+          </>
+        )}
       </a>
     </Link>
   );

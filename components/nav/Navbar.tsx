@@ -4,8 +4,6 @@ import { useMediaQuery } from 'react-responsive'
 import { useAuth } from '../../context/authContext';
 import { Button, Dropdown, Menu, Space, Avatar, MenuProps, message, AutoComplete, Input } from 'antd';
 import { LoginOutlined, LogoutOutlined, SwapOutlined, UserOutlined } from '@ant-design/icons';
-import algoliasearch from 'algoliasearch/lite';
-import { InstantSearch, Hits, Configure, Stats, Pagination, connectSearchBox } from 'react-instantsearch-dom';
 import { signOut } from "firebase/auth";
 import { firebaseAuth } from '../../services/init_firebase';
 import { openNotificationWithIcon } from '../notification/Notification';

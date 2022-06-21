@@ -1,7 +1,7 @@
-/* eslint-disable @next/next/no-img-element */
 import { EnvironmentOutlined, UserSwitchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React from 'react'
+import Image from 'next/image'
 import { convertToMapsLink, truncateString } from '../../utils/helpers';
 
 type Props = {
@@ -15,7 +15,15 @@ export default function ProductCard({ image, name, address, itemToExchangeWith }
     return (
         <div>
             <div className="max-w-sm bg-white rounded-lg shadow-md">
-                <img className="rounded-t-lg" src={image} alt="product image" />
+                <Image
+                    className="rounded-t-lg max-w-sm"
+                    src={image}
+                    alt={name}
+                    width={300}
+                    height={300}
+                    blurDataURL="data:..."
+                    placeholder="blur"
+                />
                 <div className="px-5 pb-5">
                     <h5 className="text-xl font-semibold tracking-tight">{truncateString(name, 80)}</h5>
                     <div className="flex items-center mt-2.5 mb-5">

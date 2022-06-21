@@ -5,7 +5,7 @@ import type { NextPage } from 'next'
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useState } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
+// import InfiniteScroll from 'react-infinite-scroll-component';
 import CenterLoader from '../components/loader/CenterLoader';
 import { openNotificationWithIcon } from '../components/notification/Notification';
 import ProductCard from '../components/shared/ProductCard';
@@ -13,6 +13,11 @@ import { IItem } from '../models/item';
 import { getItems } from '../services/firestore/item';
 import configs from '../shared/configs';
 import { convertToMapsLink, truncateString } from '../utils/helpers';
+import dynamic from 'next/dynamic'
+
+const InfiniteScroll = dynamic(() => import("react-infinite-scroll-component"), {
+ssr: false,
+});
 
 
 const Home: NextPage = () => {
@@ -50,7 +55,6 @@ const Home: NextPage = () => {
   }
 
   useEffect(() => {
-    console.log('pathName', router.pathname)
     fetchData();
   }, [fetchData, router.pathname])
 

@@ -78,7 +78,12 @@ const InputSection: FC<InputSectionProps> = ({
     updateDoc(doc(firestore, "items", itemId as string, "conversations", conversationId as string), {
       updatedAt: serverTimestamp(),
     });
+    updateDoc(doc(firestore, "userConversationList", conversationId as string), {
+      updatedAt: serverTimestamp(),
+    });
   };
+
+
 
   useEffect(() => {
     const handler = () => {

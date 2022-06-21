@@ -1,10 +1,13 @@
 import { doc, DocumentData, DocumentSnapshot, onSnapshot } from 'firebase/firestore';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react'
+import { useMediaQuery } from 'react-responsive';
 import ChatHeader from '../../../../components/Chat/ChatHeader';
 import ChatView from '../../../../components/Chat/ChatView';
 import SideBar from '../../../../components/ChatHome/SideBar'
 import InputSection from '../../../../components/Input/InputSection';
+import CenterLoader from '../../../../components/loader/CenterLoader';
 import { useAuth } from '../../../../context/authContext';
 import { useIsConversationScreen } from '../../../../context/isConversationScreen';
 import { useDocumentQuery } from '../../../../hooks/useDocumentQuery';
@@ -17,20 +20,6 @@ export default function ConversationPage({ }: Props) {
   const router = useRouter();
   const { itemId, conversationId } = router.query;
 
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  // const { data, loading, error } = conversationId ? useDocumentQuery(
-  //   `conversation-${conversationId || ''}`,
-  //   doc(firestore, "items",  itemId as string ,"conversations", conversationId as string || '')
-  // ) : { data: undefined, loading: false, error: undefined};
-
-  // const {} = () => {
-
-  // }
-
-
-  const { authUser } = useAuth();
-
   const [inputSectionOffset, setInputSectionOffset] = useState(0);
 
   const [replyInfo, setReplyInfo] = useState(null);
@@ -38,8 +27,22 @@ export default function ConversationPage({ }: Props) {
   const [data, setData] = useState<DocumentSnapshot<DocumentData> | null>(null);
   const [error, setError] = useState(false);
   const conversation = data?.data() as IConversation;
+  const [pageLoading, setPageLoading] = useState(true);
+  const { authUser, authLoading } = useAuth();
+  const isDesktopOrLaptop = useMediaQuery({
+    query: '(min-width: 1224px)'
+  })
 
   useEffect(() => {
+    if (!authUser && !authLoading) {
+      router.push('/login');
+      setPageLoading(false);
+    } else {
+      if (itemId && conversationId) {
+        setPageLoading(false);
+        router.push(`/item/${itemId}/conversations/${conversationId}`);
+      }
+    }
     if (conversationId) {
       const document = doc(firestore, "items", itemId as string, "conversations", conversationId as string || '')
       const unsubscribe = onSnapshot(
@@ -64,10 +67,21 @@ export default function ConversationPage({ }: Props) {
   }, [conversationId]);
 
 
+  if (pageLoading) return (
+    <>
+      <CenterLoader />
+    </>
+  )
+
+
 
   return (
-    <div className="flex flex-grow items-stretch h-5/6">
-      {/* <SideBar /> */}
+    <div className="flex flex-grow items-stretch">
+      {
+        isDesktopOrLaptop && (
+          <SideBar />
+        )
+      }
       <div className="flex flex-grow flex-col items-stretch">
         {loading ? (
           <>
@@ -79,7 +93,7 @@ export default function ConversationPage({ }: Props) {
           error ||
           !conversation.users.includes(authUser?.uid as string) ? (
           <div className="flex h-full w-full flex-col items-center justify-center gap-6">
-            <img className="h-32 w-32 object-cover" src="/error.svg" alt="" />
+            <Image className="h-32 w-32 object-cover" src="/error.svg" alt="" />
             <p className="text-center text-lg">Conversation does not exists</p>
           </div>
         ) : (

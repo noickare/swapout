@@ -103,6 +103,22 @@ export default function ItemDescription() {
                     seen: {},
                     theme: THEMES[0],
                 });
+                await setDoc(doc(firestore, "userConversationList", convId), {
+                    users: sorted,
+                    uid: convId,
+                    itemId: router.query.itemId,
+                    group:
+                        sorted.length > 2
+                            ? {
+                                admins: [authUser?.uid],
+                                groupName: null,
+                                groupImage: null,
+                            }
+                            : {},
+                    updatedAt: serverTimestamp(),
+                    seen: {},
+                    theme: THEMES[0],
+                })
                 setIsCreating(false);
                 router.push(`/item/${router.query.itemId}/conversations/${convId}`)
             } else {
@@ -123,6 +139,22 @@ export default function ItemDescription() {
                     seen: {},
                     theme: THEMES[0],
                 });
+                await setDoc(doc(firestore, "userConversationList", convId), {
+                    users: sorted,
+                    uid: convId,
+                    itemId: router.query.itemId,
+                    group:
+                        sorted.length > 2
+                            ? {
+                                admins: [authUser?.uid],
+                                groupName: null,
+                                groupImage: null,
+                            }
+                            : {},
+                    updatedAt: serverTimestamp(),
+                    seen: {},
+                    theme: THEMES[0],
+                })
 
 
                 setIsCreating(false);
