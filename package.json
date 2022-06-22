@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed:auth": "tsc seed/auth.ts && node seed/auth.js"
+    "seed:auth": "tsc seed/auth.ts && node seed/auth.js",
+    "vercel:env:push": "bash scripts/vercel-env-push.sh"
   },
   "dependencies": {
     "@algolia/autocomplete-core": "^1.6.3",

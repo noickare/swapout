@@ -1,9 +1,9 @@
 import { EditOutlined, EllipsisOutlined, EnvironmentOutlined, SettingOutlined } from '@ant-design/icons';
-import { Avatar, Button, Card } from 'antd';
+import { Avatar, Button, Card, Result } from 'antd';
 import { DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
 import type { NextPage } from 'next'
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import Router, { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useState } from 'react';
 // import InfiniteScroll from 'react-infinite-scroll-component';
 import CenterLoader from '../components/loader/CenterLoader';
@@ -27,14 +27,18 @@ const Home: NextPage = () => {
   const [lastItem, setLastItem] = useState<QueryDocumentSnapshot<DocumentData> | undefined>()
   const [hasNextCursor, setHasNextCursor] = useState(true);
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
     try {
+      setLoading(true);
       const paginatedItems = await getItems();
       const unique = [...items, ...paginatedItems.itemsArray].filter((v, i, a) => a.indexOf(v) === i);
       setLastItem(paginatedItems.lastVisible);
       setItems(unique);
+      setLoading(false)
     } catch (error) {
+      setLoading(false);
       openNotificationWithIcon('error', 'Oops!', 'Something went wrong getting the latest documents, please refresh page!')
       if (!items.length) {
         router.push('/500');
@@ -59,7 +63,7 @@ const Home: NextPage = () => {
     fetchData();
   }, [fetchData, router.pathname])
 
-  if (!items.length) {
+  if (!items.length && loading) {
     return (
       <CenterLoader />
     )
@@ -108,7 +112,21 @@ const Home: NextPage = () => {
             }
           >
             <div className="flex content-center justify-center flex-wrap">
-              {renderItems()}
+              {items.length ? (
+                renderItems()
+              ) : (
+                <>
+                  <Result
+                    title="No Items found"
+                    extra={
+                      <Button type="primary" key="console" onClick={() => Router.reload()}>
+                        Refresh page
+                      </Button>
+                    }
+                  />
+                </>
+              )
+              }
             </div>
           </InfiniteScroll>
         </div>
