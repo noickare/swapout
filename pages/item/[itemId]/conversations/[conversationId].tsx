@@ -78,7 +78,7 @@ export default function ConversationPage({ }: Props) {
 
   return (
     <>
-      <GenerateSiteTags title="conversations" description="" image="" url={`${process.env.NEXT_PUBLIC_URL}` || `http://swapout.vercel.app`} />
+      <GenerateSiteTags title="conversations" description="" image="" url={`${process.env.NEXT_PUBLIC_URL}` || `http://clueswap.vercel.app`} />
       <div className="flex flex-grow items-stretch">
         {
           isDesktopOrLaptop && (

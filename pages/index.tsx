@@ -63,7 +63,7 @@ const Home: NextPage = () => {
     fetchData();
   }, [fetchData, router.pathname])
 
-  if (!items.length && loading) {
+  if (loading) {
     return (
       <CenterLoader />
     )
@@ -86,7 +86,7 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <GenerateSiteTags title="Swapout" description="Get the things you always wanted by swapping out with things you currently own" image="" url={process.env.NEXT_PUBLIC_URL || 'http://swapout.vercel.app'} />
+      <GenerateSiteTags title="clueswap" description="Get the things you always wanted by swapping out with things you currently own" image="" url={process.env.NEXT_PUBLIC_URL || 'http://clueswap.vercel.app'} />
       <div className="flex justify-center content-center mt-3 flex-col">
         <div className="flex justify-center content-center flex-wrap">
           <InfiniteScroll

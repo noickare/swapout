@@ -3,7 +3,7 @@
 import { createAutocomplete } from "@algolia/autocomplete-core";
 import { getAlgoliaResults } from "@algolia/autocomplete-preset-algolia";
 import algoliasearch from "algoliasearch/lite";
-import { LoginOutlined, LogoutOutlined, SwapOutlined, UserOutlined } from '@ant-design/icons';
+import { LoginOutlined, LogoutOutlined, clueswaplined, UserOutlined } from '@ant-design/icons';
 import { Button, Dropdown, Menu, Space, Avatar, MenuProps, message, AutoComplete, Input } from 'antd';
 import React from "react";
 import Link from 'next/link';

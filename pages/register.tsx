@@ -71,7 +71,7 @@ export default function Register() {
 
   return (
     <>
-      <GenerateSiteTags title="Swapout | Register" description="Create new account" image="" url={`${process.env.NEXT_PUBLIC_URL}/register` || 'http://swapout.vercel.app/register'} />
+      <GenerateSiteTags title="clueswap | Register" description="Create new account" image="" url={`${process.env.NEXT_PUBLIC_URL}/register` || 'http://clueswap.com/register'} />
       <div className="flex flex-col content-center justify-center h-full mt-12 w-full">
         <Card className="w-full md:w-3/4 lg:w-1/2" style={{ margin: '0 auto' }}>
           <Title className="text-center" level={3}>Register</Title>

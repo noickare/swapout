@@ -173,7 +173,7 @@ export default function ItemDescription() {
 
     return (
         <>
-            <GenerateSiteTags title={item.name} description={item.description} image={item.images?.length ? item.images[0]: configs.noImage} url={`${process.env.NEXT_PUBLIC_URL}/item/${item.uid}/details` || `http://swapout.vercel.app/item/${item.uid}/details`} />
+            <GenerateSiteTags title={item.name} description={item.description} image={item.images?.length ? item.images[0]: configs.noImage} url={`${process.env.NEXT_PUBLIC_URL}/item/${item.uid}/details` || `http://clueswap.com/item/${item.uid}/details`} />
             <div>
                 <div className="pt-6">
                     {renderImages()}

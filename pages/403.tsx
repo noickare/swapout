@@ -7,7 +7,7 @@ export default function Custom404() {
   const router = useRouter()
   return (
     <>
-      <GenerateSiteTags title="FOrbidden!" description="You are unauthorized to view this page" image="" url={`${process.env.NEXT_PUBLIC_URL}/403` || 'http://swapout.vercel.app/403'} />
+      <GenerateSiteTags title="FOrbidden!" description="You are unauthorized to view this page" image="" url={`${process.env.NEXT_PUBLIC_URL}/403` || 'http://clueswap.com/403'} />
       <Result
         status="403"
         title="Unauthorized!"

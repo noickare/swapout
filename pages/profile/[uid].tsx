@@ -47,7 +47,7 @@ export default function UserProfile() {
 
   return (
     <>
-      <GenerateSiteTags title={userData?.name || "profile"} description={userData?.bio || ""} image={userData?.avatar || configs.noImage} url={`${process.env.NEXT_PUBLIC_URL}/profile/${userData?.uid}}` || `http://swapout.vercel.app/profile/${userData?.uid}`} />
+      <GenerateSiteTags title={userData?.name || "profile"} description={userData?.bio || ""} image={userData?.avatar || configs.noImage} url={`${process.env.NEXT_PUBLIC_URL}/profile/${userData?.uid}}` || `http://clueswap.com/profile/${userData?.uid}`} />
       <div className="m-20">
         <div className="flex items-center content-center">
           <Avatar

@@ -150,7 +150,7 @@ export default function CreateSwap() {
 
     return (
         <>
-            <GenerateSiteTags title="Swapout | List an item to swap" description="List a new item to swap" image="" url={`${process.env.NEXT_PUBLIC_URL}/register` || 'http://swapout.vercel.app/register'} />
+            <GenerateSiteTags title="clueswap | List an item to swap" description="List a new item to swap" image="" url={`${process.env.NEXT_PUBLIC_URL}/register` || 'http://clueswap.com/register'} />
             <div className="flex flex-col content-center justify-center h-full mt-12 w-full">
                 <Title className="text-center" level={3}>Add Item to Swap</Title>
                 <Form

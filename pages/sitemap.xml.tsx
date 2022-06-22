@@ -7,7 +7,7 @@ import { getItems } from '../services/firestore/item';
 
 type Props = {}
 
-const EXTERNAL_DATA_URL = 'https://swapout.vercel.app';
+const EXTERNAL_DATA_URL = 'https://clueswap.vercel.app';
 
 export default function Sitemap({ }: Props) {
 }
@@ -16,10 +16,10 @@ function generateSiteMap(items: IItem[]) {
     return `<?xml version="1.0" encoding="UTF-8"?>
    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
      <url>
-       <loc>https://swapout.vercel.app</loc>
+       <loc>https://clueswap.vercel.app</loc>
      </url>
      <url>
-       <loc>https://swapout.vercel.app/register</loc>
+       <loc>https://clueswap.com/register</loc>
      </url>
      ${items
             .map(({ uid }) => {

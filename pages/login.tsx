@@ -68,7 +68,7 @@ export default function Login() {
 
   return (
     <>
-      <GenerateSiteTags title="Swapout | Login" description="Login to your account" image="" url={`${process.env.NEXT_PUBLIC_URL}/login` || 'http://swapout.vercel.app/login'} />
+      <GenerateSiteTags title="clueswap | Login" description="Login to your account" image="" url={`${process.env.NEXT_PUBLIC_URL}/login` || 'http://clueswap.com/login'} />
       <div className="flex flex-col content-center justify-center h-full mt-12 w-full">
         <Card className="w-full md:w-3/4 lg:w-1/2" style={{ margin: '0 auto' }}>
           <Title className="text-center" level={3}>Login</Title>

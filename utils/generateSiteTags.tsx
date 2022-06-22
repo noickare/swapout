@@ -26,7 +26,7 @@ export function GenerateSiteTags({ title, description, image, url }: Props) {
             <meta name="og:description" content={truncateString(description, 150)}/>
             <meta name="og:image" content={image} />
             <meta name="og:url" content={url} />
-            <meta name="og:site_name" content="swapout" />
+            <meta name="og:site_name" content="clueswap" />
             <meta name="og:locale" content="en_Us" />
             <meta name="og:type" content="product" />
         </>

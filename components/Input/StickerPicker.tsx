@@ -14,7 +14,7 @@ interface StickerPickerOpened {
 }
 
 const getRecentStickers = () => {
-  const existing = localStorage.getItem("swapout-recent-stickers") || "[]";
+  const existing = localStorage.getItem("clueswap-recent-stickers") || "[]";
   try {
     const parsed = JSON.parse(existing);
     if (Array.isArray(parsed)) return parsed;
@@ -34,7 +34,7 @@ const StickerPicker: FC<StickerPickerOpened> = ({ setIsOpened, onSelect, isStick
   const addRecentSticker = (url: string) => {
     const added = [...new Set([url, ...recentStickers])];
 
-    localStorage.setItem("swapout-recent-stickers", JSON.stringify(added));
+    localStorage.setItem("clueswap-recent-stickers", JSON.stringify(added));
 
     setRecentStickers(added);
   };

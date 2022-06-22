@@ -7,7 +7,7 @@ export default function Custom500() {
   const router = useRouter()
   return (
     <>
-      <GenerateSiteTags title="Error!" description="Page load error" image="" url={`${process.env.NEXT_PUBLIC_URL}/500` || 'http://swapout.vercel.app/500'} />
+      <GenerateSiteTags title="Error!" description="Page load error" image="" url={`${process.env.NEXT_PUBLIC_URL}/500` || 'http://clueswap.com/500'} />
       <Result
         status="500"
         title="500"
