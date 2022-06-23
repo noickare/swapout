@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useState } from 'react'
-import { Button, DatePicker, Form, Input, Modal, Select, Typography, Upload, Spin, message, AutoComplete } from 'antd';
+import React, { useEffect, useRef, useState } from 'react'
+import { Button, DatePicker, Form, Input, Modal, Select, Typography, Upload, Spin, message, AutoComplete, InputRef } from 'antd';
 import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete'
 import { RcFile, UploadFile, UploadProps } from 'antd/lib/upload/interface';
 import { PlusOutlined } from '@ant-design/icons';
@@ -15,19 +15,13 @@ import { createItem } from '../services/firestore/item';
 import { serverTimestamp } from 'firebase/firestore';
 import { openNotificationWithIcon } from '../components/notification/Notification';
 import { GenerateSiteTags } from '../utils/generateSiteTags';
+import CategoriesInput from '../components/Search/CategoriesInput';
 
 
 const { Title } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
 const { YearPicker } = DatePicker;
-
-
-const categories = [
-    { value: 'Phones' },
-    { value: 'Electronics' },
-    { value: 'Cars' },
-];
 
 export default function CreateSwap() {
     const [form] = Form.useForm();
@@ -40,6 +34,13 @@ export default function CreateSwap() {
     const [address, setAddress] = useState<{ address: string | undefined, lat: number | undefined, lng: number | undefined }>();
     const [imageUrls, setImageUrls] = useState<string[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [tags, setTags] = useState<string[]>([]);
+    const [tagInputVisible, setTagInputVisible] = useState(false);
+    const [tagInputValue, setTagInputValue] = useState('');
+    const [editTagInputIndex, setTagEditInputIndex] = useState(-1);
+    const [editTagInputValue, setTagEditInputValue] = useState('');
+    const tagInputRef = useRef<InputRef>(null);
+    const editTagInputRef = useRef<InputRef>(null);
 
 
 
@@ -112,7 +113,7 @@ export default function CreateSwap() {
                     images: imageUrls,
                     ownerId: authUser.uid,
                     createdAt: serverTimestamp(),
-                    category: values.category
+                    category: tags
                 }
                 const createdItem = await createItem(toSaveItem);
                 setIsSubmitting(false);
@@ -132,7 +133,63 @@ export default function CreateSwap() {
         </div>
     );
 
-    React.useEffect(() => {
+    useEffect(() => {
+        if (tagInputVisible) {
+            tagInputRef.current?.focus();
+        }
+    }, [tagInputVisible]);
+
+    useEffect(() => {
+        editTagInputRef.current?.focus();
+    }, [editTagInputRef]);
+
+
+    const handleTagClose = (removedTag: string) => {
+        const newTags = tags.filter(tag => tag !== removedTag);
+        console.log(newTags);
+        setTags(newTags);
+    };
+
+    const showTagInput = () => {
+        setTagInputVisible(true);
+    };
+
+    const handleTagInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTagInputValue(e.target.value);
+    };
+
+    const handleTagInputConfirm = () => {
+        if (tagInputValue && tags.indexOf(tagInputValue) === -1) {
+            setTags([...tags, tagInputValue]);
+        }
+        setTagInputVisible(false);
+        setTagInputValue('');
+    };
+
+    const handleTagEditInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTagEditInputValue(e.target.value);
+    };
+
+    const handleTagEditInputConfirm = () => {
+        const newTags = [...tags];
+        newTags[editTagInputIndex] = editTagInputValue;
+        setTags(newTags);
+        setTagEditInputIndex(-1);
+        setTagInputValue('');
+    };
+
+
+    const onTagDoubleClick = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>, index: number, tag: string) => {
+        if (index !== 0) {
+            setTagEditInputIndex(index);
+            setTagEditInputValue(tag);
+            e.preventDefault();
+        }
+    }
+
+
+
+    useEffect(() => {
         if (!authUser && !authLoading) {
             router.push('/login');
             setPageLoading(false);
@@ -226,12 +283,21 @@ export default function CreateSwap() {
                         </Select>
                     </Form.Item>
                     <Form.Item name="category" label="Category" rules={[{ required: false }]}>
-                        <AutoComplete
-                            options={categories}
-                            placeholder="Category"
-                            filterOption={(inputValue, option) =>
-                                option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
-                            }
+                        <CategoriesInput
+                            handleTagClose={handleTagClose}
+                            handleTagInputChange={handleTagInputChange}
+                            handleTagInputConfirm={handleTagInputConfirm}
+                            handleEditInputConfirm={handleTagEditInputConfirm}
+                            tags={tags}
+                            tagInputVisible={tagInputVisible}
+                            showTagInput={showTagInput}
+                            editTagInputIndex={editTagInputIndex}
+                            editTagInputValue={editTagInputValue}
+                            editTagInputRef={editTagInputRef}
+                            tagInputRef={tagInputRef}
+                            tagInputValue={tagInputValue}
+                            handleTagEditInputChange={handleTagEditInputChange}
+                            onTagDoubleClick={onTagDoubleClick}
                         />
                     </Form.Item>
                     <Form.Item name="yearManufactured" label="Year Manufactured" rules={[{ required: true }]}>

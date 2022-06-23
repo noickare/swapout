@@ -11,8 +11,8 @@ import configs from "../../shared/configs";
 
 
 const searchClient = algoliasearch(
-    'R6W6RDTK71',
-    '91b6188bb81ddbba505a70e08cd85a3b'
+    process.env.NEXT_PUBLIC_ALGOLIA_APP_ID || 'R6W6RDTK71',
+    process.env.NEXT_PUBLIC_ALGOLIA_API_KEY || '91b6188bb81ddbba505a70e08cd85a3b'
 );
 
 class AutocompleteClass extends React.PureComponent {

@@ -20,6 +20,7 @@
     "@sentry/nextjs": "^7.2.0",
     "algoliasearch": "^4.13.1",
     "antd": "^4.21.0",
+    "antd-input-tag": "^1.0.14",
     "antd-password-input-strength": "^2.0.1",
     "autoprefixer": "^10.4.7",
     "dayjs": "^1.11.3",
