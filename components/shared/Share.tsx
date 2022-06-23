@@ -99,8 +99,8 @@ export default function Share({ url, title }: Props) {
             label: (
               <EmailShareButton
                 url={url}
-                subject={'Next Share'}
-                body="body"
+                subject={title}
+                body={`checkout ${title}`}
               >
                 <EmailIcon size={32} round />
               </EmailShareButton>
