@@ -22,6 +22,10 @@ export default function Listings({ }: Props) {
   const router = useRouter();
 
   const fetchData = useCallback(async () => {
+    if(items.length) {
+      setItems([])
+      setLastItem(undefined);
+    }
     try {
       if (router.query.uid) {
         const paginatedItems = await getUserItems(router.query.uid as string);

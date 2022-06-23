@@ -74,20 +74,24 @@ export default function CreateSwap() {
 
     const handleImageChange: UploadProps['onChange'] = async ({ fileList: newFileList }) => {
         const newFileArray = newFileList.filter(x => !imageList.includes(x));
-        const newFile = newFileArray[0];
-        const fileName = `items/images/${Date.now()}-${newFile.name}`;
-        const fileRef = ref(firebaseStorage, fileName);
-        try {
-            if (newFile.originFileObj) {
-                const designFile = await uploadBytes(fileRef, newFile.originFileObj);
-                const downloadUrl = await getDownloadURL(designFile.ref)
-                setImageUrls([...imageUrls, downloadUrl]);
+        const newFile = newFileArray[0] || undefined;
+        if (newFile) {
+            const fileName = `items/images/${Date.now()}-${newFile.name}`;
+            const fileRef = ref(firebaseStorage, fileName);
+            try {
+                if (newFile.originFileObj) {
+                    const designFile = await uploadBytes(fileRef, newFile.originFileObj);
+                    const downloadUrl = await getDownloadURL(designFile.ref)
+                    setImageUrls([...imageUrls, downloadUrl]);
+                }
+            } catch (e) {
+                console.log(e);
+                message.error('Error uploading file! Please try again')
             }
-        } catch (e) {
-            console.log(e);
-            message.error('Error uploading file! Please try again')
+            setImageList(newFileList);
+        } else {
+            setImageList([]);
         }
-        setImageList(newFileList);
     }
 
 

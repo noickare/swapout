@@ -173,7 +173,7 @@ export default function ItemDescription() {
 
     return (
         <>
-            <GenerateSiteTags title={item.name} description={item.description} image={item.images?.length ? item.images[0]: configs.noImage} url={`${process.env.NEXT_PUBLIC_URL}/item/${item.uid}/details` || `http://clueswap.com/item/${item.uid}/details`} />
+            <GenerateSiteTags title={item.name} description={item.description} image={item.images?.length ? item.images[0] : configs.noImage} url={`${process.env.NEXT_PUBLIC_URL}/item/${item.uid}/details` || `http://clueswap.com/item/${item.uid}/details`} />
             <div>
                 <div className="pt-6">
                     {renderImages()}
@@ -263,7 +263,7 @@ export default function ItemDescription() {
                                             })
                                         }
                                     </Avatar.Group>
-                                    <Paragraph style={{ marginLeft: 10 }}> Conversations</Paragraph>
+                                    {/* <Paragraph style={{ marginLeft: 10 }}> Conversations</Paragraph> */}
                                 </div>
                                 {/* <Button loading={isCreating} onClick={async () => {
                                     if (!authUser) {
@@ -306,13 +306,17 @@ export default function ItemDescription() {
                                     }
                                 }
                                 } shape="round" size="large" className="mt-10 w-full py-3 px-8">Start Conversation</Button> */}
-                                <Button loading={isCreating} onClick={() => {
-                                    if (!authUser) {
-                                        router.push('/login');
-                                    } else {
-                                        handleCreateConversation()
-                                    }
-                                }} type="primary" shape="round" size="large" className="mt-10 w-full py-3 px-8">Request</Button>
+                                {
+                                    owner?.uid !== authUser?.uid && (
+                                        <Button loading={isCreating} onClick={() => {
+                                            if (!authUser) {
+                                                router.push('/login');
+                                            } else {
+                                                handleCreateConversation()
+                                            }
+                                        }} type="primary" shape="round" size="large" className="mt-10 w-full py-3 px-8">Request</Button>
+                                    )
+                                }
                             </form>
                         </div>
 
