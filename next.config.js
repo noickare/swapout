@@ -5,7 +5,7 @@ const darkTheme = require("@ant-design/dark-theme");
 
 const moduleExports = withAntdLess({
   images: {
-    domains: ["dev-ipfs.clueconn.com", "ipfs.clueconn.com", "loremflickr.com", "apoqrsgtqq.cloudimg.io"],
+    domains: ["dev-ipfs.clueconn.com", "ipfs.clueconn.com", "loremflickr.com", "apoqrsgtqq.cloudimg.io", "https://firebasestorage.googleapis.com"],
   },
   reactStrictMode: true,
   // optional: you can modify antd less variables directly here
