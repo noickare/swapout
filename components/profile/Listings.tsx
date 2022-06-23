@@ -22,15 +22,11 @@ export default function Listings({ }: Props) {
   const router = useRouter();
 
   const fetchData = useCallback(async () => {
-    if(items.length) {
-      setItems([])
-      setLastItem(undefined);
-    }
     try {
       if (router.query.uid) {
         const paginatedItems = await getUserItems(router.query.uid as string);
         if (paginatedItems?.itemsArray?.length) {
-          const unique = [...items, ...paginatedItems.itemsArray].filter((v, i, a) => a.indexOf(v) === i);
+          const unique = paginatedItems.itemsArray.filter((v, i, a) => a.indexOf(v) === i);
           setLastItem(paginatedItems.lastVisible);
           setItems(unique);
         }
@@ -42,7 +38,7 @@ export default function Listings({ }: Props) {
         router.push('/500');
       }
     }
-  }, [])
+  }, [router])
 
   async function fetchMore() {
     try {
