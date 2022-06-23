@@ -119,7 +119,7 @@ export default function UserProfile() {
               </div>
               <div className="flex flex-wrap items-center">
                 <div className="my-5">
-                  <Share />
+                  <Share url={process.env.NEXT_PUBLIC_URL ? `${process.env.NEXT_PUBLIC_URL}/profile/${userData?.uid}` : `https://clueswap.com/profile/${userData?.uid}`} title={userData?.name || "Clueswap User"} />
                 </div>
                 {userData?.uid == authUser?.uid && (
                   <div className="ml-20">
