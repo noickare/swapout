@@ -5,7 +5,7 @@ export interface IItem {
     uid: string;
     name: string;
     location: ILocation;
-    category?: string;
+    category?: string[];
     description: string;
     condition: itemCondition;
     yearManufactured: number;
