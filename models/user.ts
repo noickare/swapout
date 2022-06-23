@@ -1,3 +1,4 @@
+import { FieldValue } from "firebase/firestore";
 import { ILocation } from "./location";
 
 export interface IUser {
@@ -8,6 +9,7 @@ export interface IUser {
     avatar?: string;
     bio?: string;
     createdAt: string;
+    updatedAt?: FieldValue;
     lastLoginTime: string;
     isEmailVerified: boolean;
     location?: ILocation;

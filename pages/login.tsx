@@ -89,7 +89,8 @@ export default function Login() {
               rules={[
                 {
                   required: true,
-                  message: 'Please input your Email!',
+                  message: 'Not a valid email!',
+                  type: 'email'
                 },
               ]}
             >
