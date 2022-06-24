@@ -44,8 +44,6 @@ export default function UpdateUserProfile({ userData, onFinish, isSubmitting, ad
     const [address, setAddress] = useState<IAdress | undefined>(add);
     const [imageUrls, setImageUrls] = useState<string[]>([]);
 
-
-
     const getBase64 = (file: RcFile): Promise<string> =>
         new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -104,7 +102,9 @@ export default function UpdateUserProfile({ userData, onFinish, isSubmitting, ad
         </div>
     );
 
-    console.log('address', address)
+    useEffect(() => {
+        setAddress(userData?.location)
+    }, [userData?.location])
 
     return (
         <>
@@ -162,6 +162,7 @@ export default function UpdateUserProfile({ userData, onFinish, isSubmitting, ad
                                         {...getInputProps({
                                             placeholder: 'Search Location ...',
                                         })}
+                                        value={address?.address}
                                     />
                                     <div className="autocomplete-dropdown-container">
                                         {loading && <div>Loading...</div>}

@@ -56,7 +56,6 @@ export default function UserProfile() {
       setIsSubmitting(true);
       try {
         if (userData) {
-          console.log
           await updateDoc(doc(firestore, "users", authUser.uid), {
             uid: userData.uid,
             email: values.email,

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Avatar, Button, Tooltip, Typography } from 'antd';
+import { Affix, Avatar, Button, Modal, Tooltip, Typography } from 'antd';
 import { AntDesignOutlined, EnvironmentOutlined, UserOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { IItem } from '../../../models/item';
@@ -13,12 +13,14 @@ import { IUser } from '../../../models/user';
 import { getUser } from '../../../services/firestore/users';
 import { convertToMapsLink } from '../../../utils/helpers';
 import { useAuth } from '../../../context/authContext';
-import { addDoc, collection, doc, getDocs, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
+import { addDoc, collection, doc, getDocs, query, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore';
 import { firestore } from '../../../services/init_firebase';
 import { THEMES } from '../../../shared/constants';
 import { IConversation } from '../../../models/conversation';
 import { GenerateSiteTags } from '../../../utils/generateSiteTags';
 import configs from '../../../shared/configs';
+import { IAdress } from '../../../components/modals/UpdateUserProfile';
+import UpdateItem from '../../../components/modals/UpdateItem';
 
 const { Title, Paragraph } = Typography;
 
@@ -29,8 +31,8 @@ export default function ItemDescription() {
     const { authUser, authLoading } = useAuth();
     const [isCreating, setIsCreating] = useState(false);
     const [conversations, setConversations] = useState<IConversation[]>();
-
-
+    const [editModalVisible, setEditModalVisible] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const fetchData = useCallback(async () => {
         const uid = router.query.itemId;
@@ -170,6 +172,43 @@ export default function ItemDescription() {
         }
     };
 
+    const onUpdateFinish = async (values: any, address?: IAdress, imagesUrl?: string[], categories?: string[]) => {
+        if (!authUser) {
+            router.push('/login')
+        } else {
+            setIsSubmitting(true);
+            try {
+                await updateDoc(doc(firestore, "items", item.uid), {
+                    uid: item.uid,
+                    name: values.name,
+                    location: {
+                        lat: address?.lat as number,
+                        lng: address?.lng as number,
+                        address: address?.address as string,
+                    },
+                    description: values.description,
+                    condition: values.condition,
+                    yearManufactured: values.yearManufactured.format('YYYY'),
+                    yearBought: values.yearBought.format('YYYY'),
+                    itemToExchangeWith: values.itemTOExchange,
+                    images: imagesUrl,
+                    ownerId: authUser.uid,
+                    createdAt: item.createdAt,
+                    updatedAt: serverTimestamp(),
+                    category: categories || []
+                });
+                fetchData();
+                setEditModalVisible(false);
+                setIsSubmitting(false);
+                // router.push(`/item/${createdItem.uid}/details`)
+            } catch (error) {
+                console.log(error);
+                setIsSubmitting(false);
+                openNotificationWithIcon('error', 'Creation Failed', 'An Error ocurred during submission please try again!')
+            }
+        }
+    }
+
 
     return (
         <>
@@ -182,11 +221,17 @@ export default function ItemDescription() {
                             <h1 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">{item.name}</h1>
                         </div>
 
-                        <div className="mt-4 lg:mt-0 lg:row-span-3">
+                        <div className="mt-4 lg:mt-0 lg:row-span-3 relative">
                             <h2 className="sr-only">Item information</h2>
                             <p className="text-base text-gray-600">Exchange for: </p>
                             <p className="text-3xl text-gray-900">{item.itemToExchangeWith}</p>
-
+                            {
+                                authUser?.uid === item.ownerId && (
+                                    <div className="absolute top-0 right-0">
+                                        <Button onClick={() => setEditModalVisible(true)} type="primary" size="middle" shape="round">Edit</Button>
+                                    </div>
+                                )
+                            }
                             <div className="mt-6">
                                 <h3 className="sr-only">Location</h3>
                                 <div className="flex items-center">
@@ -263,49 +308,7 @@ export default function ItemDescription() {
                                             })
                                         }
                                     </Avatar.Group>
-                                    {/* <Paragraph style={{ marginLeft: 10 }}> Conversations</Paragraph> */}
                                 </div>
-                                {/* <Button loading={isCreating} onClick={async () => {
-                                    if (!authUser) {
-                                        router.push('/login');
-                                    } else {
-                                        setIsCreating(true);
-
-                                        const sorted = [authUser?.uid].sort();
-
-                                        const q = query(
-                                            collection(firestore, "conversations"),
-                                            where("itemId", "==", router.query.itemId)
-                                        );
-                                        const querySnapshot = await getDocs(q);
-                                        if (querySnapshot.empty) {
-                                            const convId = uuidv4();
-                                            await setDoc(doc(firestore, "conversations", convId), {
-                                                users: sorted,
-                                                itemId: router.query.itemId,
-                                                uid: convId,
-                                                group:
-                                                    sorted.length > 2
-                                                        ? {
-                                                            admins: [authUser?.uid],
-                                                            groupName: null,
-                                                            groupImage: null,
-                                                        }
-                                                        : {},
-                                                updatedAt: serverTimestamp(),
-                                                seen: {},
-                                                theme: THEMES[0],
-                                            });
-
-                                            setIsCreating(false);
-                                            router.push(`/conversations/${convId}`)
-                                        } else {
-                                            router.push(`/conversations/${querySnapshot.docs[0].id}`)
-                                            setIsCreating(false);
-                                        }
-                                    }
-                                }
-                                } shape="round" size="large" className="mt-10 w-full py-3 px-8">Start Conversation</Button> */}
                                 {
                                     owner?.uid !== authUser?.uid && (
                                         <Button loading={isCreating} onClick={() => {
@@ -332,7 +335,16 @@ export default function ItemDescription() {
                     </div>
                 </div>
             </div>
-
+            <Modal
+                title={null}
+                centered
+                visible={editModalVisible}
+                onOk={() => setEditModalVisible(false)}
+                onCancel={() => setEditModalVisible(false)}
+                footer={null}
+            >
+                <UpdateItem itemData={item} onUpdateFinish={onUpdateFinish} isSubmitting={isSubmitting} />
+            </Modal>
         </>
     )
 }

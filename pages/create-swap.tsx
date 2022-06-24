@@ -216,9 +216,9 @@ export default function CreateSwap() {
                 <Title className="text-center" level={3}>Add Item to Swap</Title>
                 <Form
                     labelCol={{ span: 8 }}
-                    wrapperCol={{ span: 14 }}
+                    // wrapperCol={{ span: 14 }}
                     style={{ margin: '0 auto' }}
-                    className="w-1/2" form={form}
+                    className="w-3/4" form={form}
                     name="control-hooks"
                     onFinish={onFinish}
                 >
