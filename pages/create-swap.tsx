@@ -90,7 +90,7 @@ export default function CreateSwap() {
             }
             setImageList(newFileList);
         } else {
-            setImageList([]);
+            setImageList(newFileList);
         }
     }
 

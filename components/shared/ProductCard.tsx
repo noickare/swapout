@@ -20,7 +20,7 @@ export default function ProductCard({ image, name, address, itemToExchangeWith }
                 {/* {!imageLoaded ? (
                 ) : ( */}
                 {!imageLoaded && (
-                    <Skeleton.Image style={{height: 250, width: 350}} className="rounded-t-lg" />
+                    <Skeleton.Image style={{height: 384, width: 384}} className="rounded-t-lg" />
                 )}
                 <Image
                     onLoad={() => {
@@ -29,7 +29,9 @@ export default function ProductCard({ image, name, address, itemToExchangeWith }
                     }}
                     preview={false}
                     fallback={configs.noImage}
-                    className="rounded-t-lg" src={image}
+                    className="rounded-t-lg" 
+                    style={{height: 384, width: 384}}
+                    src={image}
                     alt={name} />
                 {/* )} */}
                 <div className="px-5 pb-5">
