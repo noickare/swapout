@@ -14,6 +14,7 @@ export interface IItem {
     itemToExchangeWith: string;
     ownerId: string;
     createdAt: FieldValue
+    updatedAt?: FieldValue
 }
 
 export enum itemCondition {
