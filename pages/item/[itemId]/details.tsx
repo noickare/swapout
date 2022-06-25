@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Affix, Avatar, Button, Modal, Tooltip, Typography } from 'antd';
+import { Affix, AutoComplete, Avatar, Button, Form, Input, Modal, Select, Tooltip, Typography } from 'antd';
 import { AntDesignOutlined, EnvironmentOutlined, UserOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { IItem } from '../../../models/item';
 import { useRouter } from 'next/router';
 import { v4 as uuidv4 } from 'uuid';
-import { getItem, getItemConversations } from '../../../services/firestore/item';
+import { getItem, getItemConversations, getUserItems } from '../../../services/firestore/item';
 import { openNotificationWithIcon } from '../../../components/notification/Notification';
 import CenterLoader from '../../../components/loader/CenterLoader';
 import Caraousel from '../../../components/caraousel/Caraousel';
@@ -33,6 +33,13 @@ export default function ItemDescription() {
     const [conversations, setConversations] = useState<IConversation[]>();
     const [editModalVisible, setEditModalVisible] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [form] = Form.useForm();
+    const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+    const [requestOptions, setRequestOptions] = useState<{
+        value: string;
+        label: JSX.Element;
+    }[] | undefined>([])
+    const [isCreatingConversation, setIsCreatingConversation] = useState(false);
 
     const fetchData = useCallback(async () => {
         const uid = router.query.itemId;
@@ -63,7 +70,7 @@ export default function ItemDescription() {
         fetchData()
     }, [fetchData])
 
-    if (!item || authLoading) {
+    if (!item || authLoading || isCreatingConversation) {
         return (
             <CenterLoader />
         )
@@ -95,6 +102,7 @@ export default function ItemDescription() {
                     users: sorted,
                     uid: convId,
                     itemId: router.query.itemId,
+                    // toSwapWith: toSwapWith,
                     group:
                         sorted.length > 2
                             ? {
@@ -162,12 +170,13 @@ export default function ItemDescription() {
 
 
                 setIsCreating(false);
+                setIsCreatingConversation(false);
                 router.push(`/conversations/${convId}`)
             }
 
         } else {
             !isGroup ? router.push(`/item/${router.query.itemId}/conversations/${querySnapshot.docs[0].id}`) : router.push(`/conversations/${querySnapshot.docs[0].id}`)
-
+            setIsCreatingConversation(false);
             setIsCreating(false);
         }
     };
@@ -209,6 +218,9 @@ export default function ItemDescription() {
         }
     }
 
+    async function onRequestFinish(values: any) {
+        console.log(values)
+    }
 
     return (
         <>
@@ -315,6 +327,7 @@ export default function ItemDescription() {
                                             if (!authUser) {
                                                 router.push('/login');
                                             } else {
+                                                // setIsRequestModalOpen(true);
                                                 handleCreateConversation()
                                             }
                                         }} type="primary" shape="round" size="large" className="mt-10 w-full py-3 px-8">Request</Button>
@@ -348,3 +361,67 @@ export default function ItemDescription() {
         </>
     )
 }
+
+            // <Modal
+            //     title={null}
+            //     centered
+            //     visible={isRequestModalOpen}
+            //     onOk={() => setIsRequestModalOpen(false)}
+            //     onCancel={() => setIsRequestModalOpen(false)}
+            //     footer={null}
+            // >
+            //     <div className="flex flex-col content-center justify-center h-full mt-12 w-full">
+            //         <Title className="text-center" level={3}>Request Exchange</Title>
+            //         <Form
+            //             labelCol={{ span: 8 }}
+            //             wrapperCol={{ span: 14 }}
+            //             style={{ margin: '0 auto' }}
+            //             className="w-full" form={form}
+            //             name="control-hooks"
+            //             onFinish={onRequestFinish}
+            //         >
+            //             <Form.Item name="exchangeFor" label="Exchange For" rules={[{ required: true }]}>
+            //                 <AutoComplete
+            //                     backfill
+            //                     dropdownClassName="certain-category-search-dropdown"
+            //                     options={requestOptions}
+            //                     onSelect={(value: string) => {
+            //                         setIsCreatingConversation(true);
+            //                         setIsRequestModalOpen(false);
+            //                         handleCreateConversation(value);
+            //                     }}
+            //                     onSearch={async (val) => {
+            //                         if (authUser) {
+            //                             const userItems = await getUserItems(authUser?.uid)
+            //                             const searchItems = userItems?.itemsArray?.map((item, index) => {
+            //                                 return {
+            //                                     value: item.uid,
+            //                                     label: (
+            //                                         <div
+            //                                             style={{
+            //                                                 display: 'flex',
+            //                                                 justifyContent: 'space-between',
+            //                                                 height: 40
+            //                                             }}
+            //                                         >
+            //                                             <span>
+            //                                                 {item.name}
+            //                                             </span>
+            //                                             <span>
+            //                                                 {/* eslint-disable-next-line @next/next/no-img-element */}
+            //                                                 <img style={{ width: 40, height: '100%' }} src={item.images && item.images[0] || configs.noImage} alt="" />
+            //                                             </span>
+            //                                         </div>
+            //                                     ),
+            //                                 }
+            //                             })
+            //                             setRequestOptions(searchItems)
+            //                         }
+            //                     }}
+            //                 >
+            //                     <Input placeholder="Search your items" />
+            //                 </AutoComplete>
+            //             </Form.Item>
+            //         </Form>
+            //     </div>
+            // </Modal>
