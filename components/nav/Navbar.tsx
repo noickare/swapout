@@ -194,7 +194,8 @@ const Navbar = (props: any) => {
             </nav>
             {
                 (!isDesktopOrLaptop && !isConversationScreen) && (
-                    <AutocompleteClass />
+                    // @ts-ignore
+                    <AutocompleteClass width="90%" />
                 )
             }
         </div>

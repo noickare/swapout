@@ -15,8 +15,9 @@ const searchClient = algoliasearch(
     process.env.NEXT_PUBLIC_ALGOLIA_API_KEY || '91b6188bb81ddbba505a70e08cd85a3b'
 );
 
+
 class AutocompleteClass extends React.PureComponent {
-    constructor(props) {
+    constructor(props: SearchProps) {
         super(props);
         this.state = {
             autocompleteState: {},
@@ -64,7 +65,7 @@ class AutocompleteClass extends React.PureComponent {
             <>
                 <AutoComplete
                     dropdownClassName="certain-category-search-dropdown"
-                    style={{ width: '50%' }}
+                    style={{ width: this.props.width || '50%' }}
                     options={this.state.options}
                     onSearch={(val) => {
                         const searchItems = autocompleteState.collections.map((collection, index) => {
