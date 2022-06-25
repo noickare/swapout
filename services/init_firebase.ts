@@ -1,10 +1,10 @@
 import { initializeApp, getApps, FirebaseApp, getApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
-import { enableIndexedDbPersistence, getFirestore } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-
-
+import { getMessaging, getToken, isSupported, onMessage } from 'firebase/messaging';
+import localforage from "localforage";
 
 
 const firebaseConfig = {
@@ -12,7 +12,7 @@ const firebaseConfig = {
     authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
     projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
     storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGE_SENDER_ID,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
     appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
     measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
@@ -31,18 +31,61 @@ const googleAuthProvider = new GoogleAuthProvider();
 
 const firestore = getFirestore(app);
 
-
 const firebaseStorage = getStorage(app);
 
-// enableIndexedDbPersistence(firestore, { forceOwnership: false }).catch((err) => {
-//     if (err.code == 'failed-precondition') {
-//         console.log('multiple tabs open')
-//     } else if (err.code == 'unimplemented') {
-//         console.log('unimplemented')
-//     }
-// });
+// const firebaseMessaging = getMessaging(app);
 
+const firebaseCloudMessaging = {
+  tokenInlocalforage: async () => {
+    const token = await localforage.getItem("fcm_token");
+    console.log("fcm_token tokenInlocalforage", token);
+    return token;
+  },
+  onMessage: async () => {
+    const messaging = getMessaging(app);
+    onMessage(messaging, (payload) => {
+      console.log("Message received. ", payload);
+      alert("Notification");
+    });
+  },
 
+  init: async function () {
+    try {
+      if ((await this.tokenInlocalforage()) !== null) {
+        console.log("it already exists");
+        return false;
+      }
+      console.log("it is creating it.");
+      const messaging = getMessaging(app);
+      await Notification.requestPermission();
+      getToken(messaging, {
+        vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY
+        })
+        .then((currentToken) => {
+          console.log("current Token", currentToken);
+          if (currentToken) {
+            // Send the token to your server and update the UI if necessary
+            // save the token in your database
+            localforage.setItem("fcm_token", currentToken);
+            console.log("fcm_token", currentToken);
+          } else {
+            // Show permission request UI
+            console.log(
+              "NOTIFICACION, No registration token available. Request permission to generate one."
+            );
+            // ...
+          }
+        })
+        .catch((err) => {
+          console.log(
+            "NOTIFICACIONAn error occurred while retrieving token . "
+          );
+          console.log(err);
+        });
+    } catch (error) {
+      console.error(error);
+    }
+  },
+};
 
-
-export { firebaseAuth, firebaseAnalytics, googleAuthProvider, firestore, firebaseStorage };
+export { firebaseAuth, firebaseAnalytics, googleAuthProvider, firestore, firebaseStorage, firebaseCloudMessaging };
