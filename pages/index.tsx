@@ -1,5 +1,4 @@
-import { EditOutlined, EllipsisOutlined, EnvironmentOutlined, SettingOutlined } from '@ant-design/icons';
-import { Avatar, Button, Card, Result } from 'antd';
+import { Button, Result } from 'antd';
 import { DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
 import type { NextPage } from 'next'
 import Link from 'next/link';
@@ -12,9 +11,9 @@ import ProductCard from '../components/shared/ProductCard';
 import { IItem } from '../models/item';
 import { getItems } from '../services/firestore/item';
 import configs from '../shared/configs';
-import { convertToMapsLink, truncateString } from '../utils/helpers';
 import dynamic from 'next/dynamic'
 import { GenerateSiteTags } from '../utils/generateSiteTags';
+import { IUser } from '../models/user';
 
 const InfiniteScroll = dynamic(() => import("react-infinite-scroll-component"), {
   ssr: false,
@@ -28,6 +27,7 @@ const Home: NextPage = () => {
   const [hasNextCursor, setHasNextCursor] = useState(true);
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [authUser, setAuthUser] = useState<IUser | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
