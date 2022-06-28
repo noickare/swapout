@@ -13,4 +13,5 @@ export interface IUser {
     lastLoginTime: string;
     isEmailVerified: boolean;
     location?: ILocation;
+    fcmToken?: string;
 }

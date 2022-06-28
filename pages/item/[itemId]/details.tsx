@@ -100,6 +100,7 @@ export default function ItemDescription() {
                 const convId = uuidv4();
                 await setDoc(doc(firestore, "items", router.query.itemId as string, "conversations", convId), {
                     users: sorted,
+                    initiator: authUser?.uid,
                     uid: convId,
                     itemId: router.query.itemId,
                     // toSwapWith: toSwapWith,
@@ -117,6 +118,7 @@ export default function ItemDescription() {
                 });
                 await setDoc(doc(firestore, "userConversationList", convId), {
                     users: sorted,
+                    initiator: authUser?.uid,
                     uid: convId,
                     itemId: router.query.itemId,
                     group:
@@ -137,6 +139,7 @@ export default function ItemDescription() {
                 const convId = uuidv4();
                 await setDoc(doc(firestore, "items", router.query.itemId as string, "conversations", convId), {
                     users: sorted,
+                    initiator: authUser?.uid,
                     uid: convId,
                     itemId: router.query.itemId,
                     group:
@@ -153,6 +156,7 @@ export default function ItemDescription() {
                 });
                 await setDoc(doc(firestore, "userConversationList", convId), {
                     users: sorted,
+                    initiator: authUser?.uid,
                     uid: convId,
                     itemId: router.query.itemId,
                     group:
