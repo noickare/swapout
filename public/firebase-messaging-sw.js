@@ -6,9 +6,14 @@ importScripts(
 );
 
 // Initialize the Firebase app in the service worker by passing the generated config
-console.log('nodeenv', process.env.NODE_ENV);
 var firebaseConfig = {
-  messagingSenderId: process.env.NODE_ENV === "development" ? "151596128119" : "232474665634",
+  apiKey: "AIzaSyDSYG5q07XmLx3jxkMm831FgP4ZcoDPPeg",
+  authDomain: "prod-clueconn.firebaseapp.com",
+  projectId: "prod-clueconn",
+  storageBucket: "prod-clueconn.appspot.com",
+  messagingSenderId: "232474665634",
+  appId: "1:232474665634:web:a39624926ee5e55895edfb",
+  measurementId: "G-7TP92H2W4D",
 };
 
 firebase.initializeApp(firebaseConfig);

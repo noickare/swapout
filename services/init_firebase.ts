@@ -39,7 +39,6 @@ const firebaseStorage = getStorage(app);
 async function tokenInServer(token?: string) {
   const currentAuthUser = firebaseAuth.currentUser;
   if (currentAuthUser && token) {
-    console.log('currentAuthenticatedUser', currentAuthUser);
     const authUserData = await getUser(currentAuthUser.uid);
     if(!authUserData.fcmToken ||  authUserData.fcmToken !== token) {
           await updateDoc(doc(firestore, "users", authUserData.uid), {
