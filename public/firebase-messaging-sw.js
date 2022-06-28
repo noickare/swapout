@@ -7,7 +7,7 @@ importScripts(
 
 // Initialize the Firebase app in the service worker by passing the generated config
 var firebaseConfig = {
-  messagingSenderId: "151596128119",
+  messagingSenderId: process.env.NEXT_PUBLIC_NODE_ENV === "development" ? "151596128119" : "232474665634",
 };
 
 firebase.initializeApp(firebaseConfig);
