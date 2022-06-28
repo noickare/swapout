@@ -42,7 +42,7 @@ export default function UserProfile() {
         router.push('/500');
       }
     }
-  }, [router, userData])
+  }, [router])
 
   useEffect(() => {
     fetchData();
