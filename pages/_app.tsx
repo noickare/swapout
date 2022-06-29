@@ -8,7 +8,8 @@ import GooglePlacesScript from '../components/scripts/GooglePlaces';
 import { IsConversationPageProvider } from '../context/isConversationScreen';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
-import { firebaseCloudMessaging } from '../services/init_firebase';
+import { fireApp, firebaseCloudMessaging } from '../services/init_firebase';
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 
 
 
@@ -25,6 +26,12 @@ function MyApp({ Component, pageProps }: AppProps) {
   }
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      initializeAppCheck(fireApp, {
+        provider: new ReCaptchaV3Provider("6LeRe6ogAAAAAPGOgykIk3md6xZKCueBkNuTnx7Y"),
+        isTokenAutoRefreshEnabled: true,
+      });
+    }
     firebaseCloudMessaging.init();
     const setToken = async () => {
       const token = await firebaseCloudMessaging.tokenInlocalforage();

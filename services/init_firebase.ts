@@ -4,6 +4,8 @@ import { getAnalytics } from "firebase/analytics";
 import { getFirestore, updateDoc, doc } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
+
 import localforage from "localforage";
 import { getUser } from "./firestore/users";
 
@@ -19,6 +21,7 @@ const firebaseConfig = {
 };
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+
 
 const firebaseAuth = getAuth(app);
 const getFirebaseAnalytics = () => {
@@ -103,4 +106,4 @@ const firebaseCloudMessaging = {
   },
 };
 
-export { firebaseAuth, firebaseAnalytics, googleAuthProvider, firestore, firebaseStorage, firebaseCloudMessaging };
+export { firebaseAuth, firebaseAnalytics, googleAuthProvider, firestore, firebaseStorage, firebaseCloudMessaging, app as fireApp };
