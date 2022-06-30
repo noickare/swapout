@@ -11,15 +11,15 @@ const responsive = {
     superLargeDesktop: {
         // the naming can be any, depends on you.
         breakpoint: { max: 4000, min: 3000 },
-        items: 5
+        items: 1
     },
     desktop: {
         breakpoint: { max: 3000, min: 1024 },
-        items: 3
+        items: 1
     },
     tablet: {
         breakpoint: { max: 1024, min: 464 },
-        items: 2
+        items: 1
     },
     mobile: {
         breakpoint: { max: 464, min: 0 },
@@ -32,10 +32,13 @@ export default function Caraousel(props: CaraouselProps) {
         return props.images.map((img, i) => {
             return (
             <Image
+                width="100%"
+                style={{objectFit: 'cover'}}
                 key={i}
                 src={img}
                 alt={img}
                 height={500}
+                preview={false}
             />
             )
         })
