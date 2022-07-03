@@ -1,5 +1,4 @@
 import { doc, DocumentData, DocumentSnapshot, onSnapshot } from 'firebase/firestore';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react'
 import { useMediaQuery } from 'react-responsive';
@@ -9,8 +8,6 @@ import SideBar from '../../../../components/ChatHome/SideBar'
 import InputSection from '../../../../components/Input/InputSection';
 import CenterLoader from '../../../../components/loader/CenterLoader';
 import { useAuth } from '../../../../context/authContext';
-import { useIsConversationScreen } from '../../../../context/isConversationScreen';
-import { useDocumentQuery } from '../../../../hooks/useDocumentQuery';
 import { IConversation } from '../../../../models/conversation';
 import { firestore } from '../../../../services/init_firebase';
 import { GenerateSiteTags } from '../../../../utils/generateSiteTags';
@@ -96,7 +93,7 @@ export default function ConversationPage({ }: Props) {
             error ||
             !conversation.users.includes(authUser?.uid as string) ? (
             <div className="flex h-full w-full flex-col items-center justify-center gap-6">
-              <Image className="h-32 w-32 object-cover" src="/error.svg" alt="" />
+              <img className="h-32 w-32 object-cover" src="/error.svg" alt="" />
               <p className="text-center text-lg">Conversation does not exists</p>
             </div>
           ) : (
