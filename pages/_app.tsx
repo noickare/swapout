@@ -41,7 +41,6 @@ function MyApp({ Component, pageProps }: AppProps) {
       }
     };
     const result = setToken();
-    console.log("result", result);
   }, []);
 
   return (

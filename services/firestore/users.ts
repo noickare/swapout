@@ -1,5 +1,6 @@
-import { collection, addDoc, getDoc, doc, setDoc, query, where, orderBy, startAfter, getDocs } from "firebase/firestore";
+import { collection, addDoc, getDoc, doc, setDoc, query, where, orderBy, startAfter, getDocs, QueryDocumentSnapshot, DocumentData, limit } from "firebase/firestore";
 import { IConversation } from "../../models/conversation";
+import { INotification } from "../../models/notification";
 import { IUser } from "../../models/user";
 import { firestore } from "../init_firebase";
 
@@ -26,6 +27,34 @@ export const getUser = async (uid: string) => {
     } catch (error: any) {
         throw new Error(error.message);
     }
+}
+
+
+export interface getNotificationsParams {
+    userId: string
+    lastDoc?: QueryDocumentSnapshot<DocumentData>,
+    itemsLimit?: number
+}
+
+export const getNotifications = async (params?: getNotificationsParams) => {
+    try {
+        const q = query(collection(firestore, "users", params?.userId as string, "notifications"), orderBy("createdAt"), startAfter(params?.lastDoc || 0), limit(params?.itemsLimit || 15),);
+        const documentSnapshots = await getDocs(q)
+        const lastVisible = documentSnapshots.docs[documentSnapshots.docs.length - 1];
+        const notificationsArray: INotification[] = [];
+        documentSnapshots.forEach((doc) => {
+            notificationsArray.push(doc.data() as INotification);
+        })
+
+        console.log('notifications', notificationsArray);
+
+        return { lastVisible, notificationsArray }
+
+
+    } catch (error: any) {
+        throw new Error(error.message)
+    }
+
 }
 
 

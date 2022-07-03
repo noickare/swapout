@@ -29,6 +29,7 @@ const SelectConversation: FC<SelectConversationProps> = ({
 
   const router = useRouter();
 
+
   const fetchData = useCallback(async () => {
     const uid = router.query.itemId;
     if (uid) {
@@ -72,7 +73,7 @@ const SelectConversation: FC<SelectConversationProps> = ({
     return (
       <Link
         href={`/item/${conversation.itemId}/conversations/${conversationId}`}
-        className={`hover:bg-dark-lighten relative flex items-stretch gap-2 py-2 px-5 transition duration-300 ${conversationId === router.query.conversationId ? "!bg-[#263342]" : ""
+        className={`hover:bg-dark-lighten relative flex items-stretch m-5 gap-2 py-2 px-5 transition duration-300 ${conversationId === router.query.conversationId ? "!bg-[#263342]" : ""
           }`}
       >
         <a>
@@ -83,7 +84,7 @@ const SelectConversation: FC<SelectConversationProps> = ({
           />
           <div className="flex flex-grow flex-col items-start gap-1 py-1">
             <p className="max-w-[240px] flex-grow overflow-hidden text-ellipsis whitespace-nowrap">
-              {filtered?.[0].data()?.displayName}
+              {filtered?.[0].data()?.name || filtered?.[0].data()?.email.substring(0, 3)}
             </p>
             {lastMessageLoading ? (
               <Skeleton className="w-2/3 flex-grow" />
@@ -93,7 +94,7 @@ const SelectConversation: FC<SelectConversationProps> = ({
               </p>
             )}
           </div>
-          {!lastMessageLoading && (
+          {(!lastMessageLoading && !filtered?.length) && (
             <>
               {lastMessage?.lastMessageId !== null &&
                 lastMessage?.lastMessageId !==
@@ -132,14 +133,13 @@ const SelectConversation: FC<SelectConversationProps> = ({
               src={IMAGE_PROXY(filtered?.[1]?.data()?.photoURL)}
               alt=""
             />
-            <div className="bg-primary absolute top-1/2 right-4 h-[10px] w-[10px] -translate-y-1/2 rounded-full">No messages yet</div>
           </div>
         )}
         <div className="flex flex-grow flex-col items-start gap-1 py-1">
           <p className="max-w-[240px] overflow-hidden text-ellipsis whitespace-nowrap">
             {conversation?.group?.groupName ||
               filtered
-                ?.map((user) => user.data()?.displayName)
+                ?.map((user) => user.data()?.name || user.data()?.email.substring(0, 3))
                 .slice(0, 3)
                 .join(", ")}
           </p>

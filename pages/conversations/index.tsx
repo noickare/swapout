@@ -1,11 +1,11 @@
 import { Spin } from 'antd';
 import { collection, DocumentData, onSnapshot, orderBy, QuerySnapshot, query } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react'
-import SelectConversation from '../../../../components/ChatHome/SelectConversation';
-import CenterLoader from '../../../../components/loader/CenterLoader';
-import { useAuth } from '../../../../context/authContext';
-import { IConversation } from '../../../../models/conversation';
-import { firestore } from '../../../../services/init_firebase';
+import SelectConversation from '../../components/ChatHome/SelectConversation';
+import CenterLoader from '../../components/loader/CenterLoader';
+import { useAuth } from '../../context/authContext';
+import { IConversation } from '../../models/conversation';
+import { firestore } from '../../services/init_firebase';
 
 type Props = {}
 
@@ -43,7 +43,6 @@ export default function ConversationList({ }: Props) {
             <CenterLoader />
         </div>
     }
-    console.log('convs', data?.docs)
 
     return (
         <div>
